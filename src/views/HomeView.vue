@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
+import { ref } from 'vue';
+
+const input = ref('');
+
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <h1>Home</h1>
+    <InputText v-model="input" />
+    <p>{{ input }}</p>
+    <Button label="Click me" />
   </main>
 </template>
