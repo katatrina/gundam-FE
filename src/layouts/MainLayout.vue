@@ -24,7 +24,7 @@
 
           <!-- Auth Links -->
           <div class="flex items-center h-10">
-            <RouterLink to="/login" class="hover:text-gray-600 font-medium">Đăng Nhập</RouterLink>
+            <RouterLink to="/login" class="hover:text-gray-600 font-medium text-emerald-500">Đăng Nhập</RouterLink>
             <div class="h-full">
               <Divider layout="vertical" type="solid" class="ml-2 mr-4" />
             </div>
@@ -34,18 +34,10 @@
 
         <!-- Navigation Links -->
         <nav class="mt-4">
-          <ul class="flex space-x-8 font-semibold">
-            <li>
-              <RouterLink to="/" class=" hover:text-gray-600">TRANG CHỦ</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/auctions" class="hover:text-gray-600">CÁC CUỘC ĐẤU GIÁ</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/categories" class="hover:text-gray-600">TẤT CẢ THỂ LOẠI</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/exchange" class="hover:text-gray-600">TRAO ĐỔI TRUYỆN</RouterLink>
+          <ul class="flex space-x-8 font-normal text-gray-500">
+            <li v-for="link in links" :key="link.name">
+              <RouterLink :to="link.path" class=" hover:text-emerald-500" activeClass="font-semibold text-emerald-500"
+                exactActiveClass="font-semibold text-emerald-500">{{ link.name }}</RouterLink>
             </li>
           </ul>
         </nav>
@@ -70,5 +62,12 @@ import Divider from 'primevue/divider';
 import { ref } from 'vue';
 
 const q = ref('');
+
+const links = ref([
+  { name: 'TRANG CHỦ', path: '/' },
+  { name: 'CÁC CUỘC ĐẤU GIÁ', path: '/auctions' },
+  { name: 'TẤT CẢ THỂ LOẠI', path: '/categories' },
+  { name: 'TRAO ĐỔI GUNDAM', path: '/exchange' },
+])
 
 </script>
