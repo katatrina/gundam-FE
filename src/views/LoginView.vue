@@ -31,7 +31,7 @@
           <div class="mb-6">
             <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
             <InputText id="password" v-model="password" type="password" placeholder="Nhập mật khẩu"
-              class="w-full mt-1 bg-gray-100 text-gray-800" />
+              class="w-full mt-1 bg-gray-100 text-gray-800" required />
           </div>
 
           <Button label="Đăng Nhập" type="submit" class="w-full mb-1" />
@@ -80,17 +80,15 @@
 </template>
 
 <script setup lang="ts">
+import loginBg from '@/assets/images/login-bg.jpg';
+
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-import { ref } from 'vue';
 
-// Import the background image
-import loginBg from '@/assets/images/login-bg.jpg';
 import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
 
-const email = ref('');
-const password = ref('');
+import { ref } from 'vue';
 
 const handleLogin = () => {
   // Handle login logic here
