@@ -43,6 +43,7 @@
             <Divider class="flex-1" />
           </div>
 
+          <!-- Google Sign-In Button -->
           <Button
             class="w-full bg-white border border-gray-300 text-black py-2 rounded-md flex items-center justify-center hover:bg-gray-100 transition duration-300"><svg
               width="20px" height="20px" viewBox="0 0 32 32" data-name="Layer 1" class="mr-2" id="Layer_1"
@@ -62,6 +63,7 @@
               <path d="M29.25,15v1L27,19.5H16.5V14H28.25A1,1,0,0,1,29.25,15Z" fill="#4285f4"></path>
             </svg>Đăng nhập bằng Google</Button>
 
+          <!-- Link to Register Page -->
           <div class="mt-4 text-center">
             <span class="text-sm font-light">Chưa có tài khoản? </span>
             <RouterLink to="/register" class="text-emerald-500 hover:underline font-medium">
