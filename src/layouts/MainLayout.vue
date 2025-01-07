@@ -1,15 +1,12 @@
 <!-- src/layouts/MainLayout.vue -->
 <template>
   <div class="w-full">
-    <header class="header">
+    <header class="">
       <div class="container mx-auto px-4 py-2">
         <nav class="flex items-center justify-between h-16">
           <!-- Logo -->
           <div class="flex items-center">
-            <RouterLink to="/" class="flex items-center">
-              <img src="https://images-na.ssl-images-amazon.com/images/I/61wswIFrQPL.jpg" alt="ComZone" class="h-8">
-              <span class="ml-2 text-xl font-bold">Mecha World</span>
-            </RouterLink>
+            <AppLogo />
           </div>
 
           <!-- Search Bar -->
@@ -50,6 +47,7 @@
       <RouterView />
     </main>
   </div>
+  <AppFooter />
 </template>
 
 <script setup lang="ts">
@@ -60,6 +58,8 @@ import InputText from 'primevue/inputtext';
 import Divider from 'primevue/divider';
 
 import { ref } from 'vue';
+import AppFooter from '@/components/AppFooter.vue';
+import AppLogo from '@/components/AppLogo.vue';
 
 const q = ref('');
 

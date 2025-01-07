@@ -1,11 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
-import HomeView from '@/views/HomeView.vue'
+import AuctionView from '@/views/AuctionView.vue'
 import CategoriesView from '@/views/CategoriesView.vue'
 import ExchangeView from '@/views/ExchangeView.vue'
+import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import AuctionView from '@/views/AuctionView.vue'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
@@ -36,13 +35,11 @@ const routes = [
   },
   {
     path: '/login',
-    name: 'login',
     component: LoginView,
-  },
-  {
-    path: '/register',
-    name: 'register',
-    component: RegisterView,
+    // components: [
+    //   default: LoginView,
+
+    // ]
   },
 ]
 
