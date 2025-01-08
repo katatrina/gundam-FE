@@ -34,13 +34,13 @@
               class="w-full mt-1 bg-gray-100 text-gray-800" required />
           </div>
 
-          <Button label="Đăng Nhập" type="submit" class="w-full mb-1" />
+          <Button label="Đăng Nhập" type="submit" class="w-full mb-1" :loading="loading" />
 
           <!-- hoặc -->
-          <div class="flex items-center mb-1">
-            <Divider class="flex-1" />
+          <div class="flex items-center mb-1 justify-center">
+            <!-- <Divider class="flex-1" /> -->
             <span class="mx-4 text-gray-500 italic">hoặc</span>
-            <Divider class="flex-1" />
+            <!-- <Divider class="flex-1" /> -->
           </div>
 
           <!-- Google Sign-In Button -->
@@ -63,7 +63,6 @@
               <path d="M29.25,15v1L27,19.5H16.5V14H28.25A1,1,0,0,1,29.25,15Z" fill="#4285f4"></path>
             </svg>Đăng nhập bằng Google</Button>
 
-          <!-- Link to Register Page -->
           <div class="mt-4 text-center">
             <span class="text-sm font-light">Chưa có tài khoản? </span>
             <RouterLink to="/register" class="text-emerald-500 hover:underline font-medium">
@@ -84,14 +83,83 @@ import loginBg from '@/assets/images/login-bg.jpg';
 
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
+import { useToast } from 'primevue/usetoast';
 
 import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
 
+import axios from '@/config/axios';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useCookies } from '@vueuse/integrations/useCookies'
 
-const handleLogin = () => {
-  // Handle login logic here
-  console.log('Email:', email.value, 'Password:', password.value);
+import type { User } from '@/types/models';
+
+interface LoginResponse {
+  user: User
+  access_token: string
+  access_token_expires_at: string
+}
+
+const cookies = useCookies();
+
+const toast = useToast();
+const router = useRouter();
+
+const loading = ref<boolean>(false);
+
+const email = ref<string>("");
+const password = ref<string>("");
+
+const handleLogin = async () => {
+  loading.value = true;
+
+  // sleep for 500ms to show loading spinner
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  try {
+    const response = await axios.post<LoginResponse>('/users/login', {
+      email: email.value,
+      password: password.value,
+    });
+
+    const { access_token } = response.data;
+
+    // Save access token to cookies
+    cookies.set('access_token', access_token, {
+      expires: new Date(response.data.access_token_expires_at),
+      sameSite: 'strict',
+    });
+
+    // Navigate to home page
+    router.push('/');
+
+    // Show success notification
+    toast.add({
+      severity: 'success',
+      summary: "Đăng nhập thành công",
+      detail: `Chào mừng, ${response.data.user.email} 😍`,
+      life: 3000
+    });
+  } catch (error: any) {
+    const statusCode = error.response.status;
+    if (statusCode === 401 || statusCode === 404) {
+      toast.add({
+        severity: 'error',
+        summary: "Đăng nhập thất bại",
+        detail: 'Thông tin đăng nhập không chính xác.',
+        life: 3000
+      });
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: "Đăng nhập không thành công",
+        detail: 'Lỗi hệ thống, vui lòng thử lại sau.',
+        life: 3000
+      });
+    }
+  } finally {
+    loading.value = false;
+  }
 };
 </script>

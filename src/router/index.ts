@@ -35,11 +35,8 @@ const routes = [
   },
   {
     path: '/login',
+    name: 'login',
     component: LoginView,
-    // components: [
-    //   default: LoginView,
-
-    // ]
   },
 ]
 
