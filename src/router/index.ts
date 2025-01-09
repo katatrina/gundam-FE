@@ -1,4 +1,6 @@
 import MainLayout from '@/layouts/MainLayout.vue'
+import { useAuthStore } from '@/stores/auth'
+import { verifyAccessToken } from '@/utils/auth'
 import AuctionView from '@/views/AuctionView.vue'
 import CategoriesView from '@/views/CategoriesView.vue'
 import ExchangeView from '@/views/ExchangeView.vue'

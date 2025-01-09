@@ -19,8 +19,19 @@
             </div>
           </div>
 
+          <!-- Show a loading spinner when loading -->
+          <div v-if="loadingAuth" class="flex items-center h-10">
+            <ProgressSpinner style="width: 30px; height: 30px" strokeWidth="8" fill="transparent"
+              animationDuration="0.5s" aria-label="Custom ProgressSpinner" />
+          </div>
+
+          <!-- Show user avatar when authenticated -->
+          <div v-else-if="isAuthenticated" class="flex items-center h-10">
+            <span>YOU ARE LOGGED IN</span>
+          </div>
+
           <!-- Auth Links -->
-          <div class="flex items-center h-10">
+          <div v-else class="flex items-center h-10">
             <RouterLink to="/login" class="hover:text-gray-600 font-medium text-emerald-500">Đăng Nhập</RouterLink>
             <div class="h-full">
               <Divider layout="vertical" type="solid" class="ml-2 mr-4" />
@@ -43,6 +54,7 @@
 
     <Divider layout="horizontal" type="solid" class="mt-0" />
 
+    <!--  Main Content -->
     <main class="container mx-auto px-4 py-8">
       <RouterView />
     </main>
@@ -56,10 +68,16 @@ import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
 import Divider from 'primevue/divider';
+import ProgressSpinner from 'primevue/progressspinner';
 
 import { ref } from 'vue';
 import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+
+const authStore = useAuthStore();
+const { isAuthenticated, loadingAuth } = storeToRefs(authStore);
 
 const q = ref('');
 

@@ -94,6 +94,8 @@ import { useRouter } from 'vue-router';
 import { useCookies } from '@vueuse/integrations/useCookies'
 
 import type { User } from '@/types/models';
+import { useAuthStore } from '@/stores/auth';
+
 
 interface LoginResponse {
   user: User
@@ -102,9 +104,9 @@ interface LoginResponse {
 }
 
 const cookies = useCookies();
-
 const toast = useToast();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const loading = ref<boolean>(false);
 
@@ -123,13 +125,16 @@ const handleLogin = async () => {
       password: password.value,
     });
 
-    const { access_token } = response.data;
+    const { access_token, user } = response.data;
 
     // Save access token to cookies
     cookies.set('access_token', access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
     });
+
+    // Store user information in auth store
+    authStore.setUser(user);
 
     // Navigate to home page
     router.push('/');
@@ -138,7 +143,7 @@ const handleLogin = async () => {
     toast.add({
       severity: 'success',
       summary: "Đăng nhập thành công",
-      detail: `Chào mừng, ${response.data.user.email} 😍`,
+      detail: `Chào mừng, ${response.data.user.email} 🤗`,
       life: 3000
     });
   } catch (error: any) {
