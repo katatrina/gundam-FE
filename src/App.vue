@@ -1,5 +1,5 @@
 <template>
-  <Toast />
+  <Toast position="bottom-right" group="br" />
   <div class="w-full min-h-screen flex flex-col justify-between">
     <RouterView />
   </div>

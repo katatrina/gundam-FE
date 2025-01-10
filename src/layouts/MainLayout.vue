@@ -75,7 +75,7 @@ import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
-import AvatarDropdown from '@/components/AvatarDropdown.vue';
+import AvatarDropdown from '@/components/AvatarDropdownMenu.vue';
 
 const authStore = useAuthStore();
 const { isAuthenticated, loadingAuth } = storeToRefs(authStore);

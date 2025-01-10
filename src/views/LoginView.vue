@@ -144,8 +144,9 @@ const handleLogin = async () => {
     toast.add({
       severity: 'success',
       summary: "Đăng nhập thành công",
-      detail: `Chào mừng, ${response.data.user.email} 🤗`,
-      life: 3000
+      // detail: `Chào mừng, ${response.data.user.email} 🤗`,
+      life: 3000,
+      group: 'br',
     });
   } catch (error: any) {
     const statusCode = error.response.status;

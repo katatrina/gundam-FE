@@ -35,10 +35,13 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from '@/stores/auth';
 import { useCookies } from '@vueuse/integrations/useCookies';
 import { ACCESS_TOKEN_KEY } from '@/constants';
+import { useToast } from 'primevue/usetoast';
 
 const showDropdown = ref(false);
 const authStore = useAuthStore();
 const cookies = useCookies();
+const toast = useToast();
+
 
 const menuItems = [
   { label: "Profile", path: "/profile", icon: "pi pi-user" },
@@ -59,6 +62,7 @@ const handleItemClick = (item: { label: string, path: string }) => {
     setTimeout(() => {
       authStore.clearUser();
       cookies.remove(ACCESS_TOKEN_KEY);
+      toast.add({ severity: 'success', summary: 'Đăng xuất thành công', life: 3000, group: 'br' });
     }, 500);
 
   } else {
