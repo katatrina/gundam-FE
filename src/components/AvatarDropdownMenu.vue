@@ -43,11 +43,11 @@ const cookies = useCookies();
 const toast = useToast();
 
 
-const menuItems = [
+const menuItems = ref([
   { label: "Profile", path: "/profile", icon: "pi pi-user" },
   { label: "Settings", path: "/settings", icon: "pi pi-cog" },
   { label: "Log Out", path: "/logout", icon: "pi pi-sign-out" },
-];
+]);
 
 const router = useRouter();
 
