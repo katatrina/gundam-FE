@@ -2,6 +2,7 @@ import { useCookies } from '@vueuse/integrations/useCookies'
 import { useAuthStore } from '@/stores/auth'
 import axios from '@/config/axios'
 import type { User } from '@/types/models'
+import { ACCESS_TOKEN_KEY } from '@/constants'
 
 export async function verifyAccessToken() {
   const cookies = useCookies()
@@ -14,7 +15,7 @@ export async function verifyAccessToken() {
     // await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Get the token from cookies
-    const token: string = cookies.get('access_token')
+    const token: string = cookies.get(ACCESS_TOKEN_KEY)
 
     if (!token) {
       authStore.clearUser()
@@ -29,7 +30,7 @@ export async function verifyAccessToken() {
   } catch (error: any) {
     console.error('Token verification failed:', error)
 
-    cookies.remove('access_token')
+    cookies.remove(ACCESS_TOKEN_KEY)
     authStore.clearUser()
   } finally {
     authStore.setLoadingAuth(false)

@@ -95,6 +95,7 @@ import { useCookies } from '@vueuse/integrations/useCookies'
 
 import type { User } from '@/types/models';
 import { useAuthStore } from '@/stores/auth';
+import { ACCESS_TOKEN_KEY } from '@/constants';
 
 
 interface LoginResponse {
@@ -128,7 +129,7 @@ const handleLogin = async () => {
     const { access_token, user } = response.data;
 
     // Save access token to cookies
-    cookies.set('access_token', access_token, {
+    cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
     });

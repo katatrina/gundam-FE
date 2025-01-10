@@ -1,8 +1,8 @@
 <!-- src/layouts/MainLayout.vue -->
 <template>
   <div class="w-full">
-    <header class="">
-      <div class="container mx-auto px-4 py-2">
+    <header>
+      <div class="mx-auto container py-2">
         <nav class="flex items-center justify-between h-16">
           <!-- Logo -->
           <div class="flex items-center">
@@ -27,10 +27,10 @@
 
           <!-- Show user avatar when authenticated -->
           <div v-else-if="isAuthenticated" class="flex items-center h-10">
-            <span>YOU ARE LOGGED IN</span>
+            <AvatarDropdown />
           </div>
 
-          <!-- Auth Links -->
+          <!-- Show login and register buttons when not authenticated -->
           <div v-else class="flex items-center h-10">
             <RouterLink to="/login" class="hover:text-gray-600 font-medium text-emerald-500">Đăng Nhập</RouterLink>
             <div class="h-full">
@@ -75,6 +75,7 @@ import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
+import AvatarDropdown from '@/components/AvatarDropdown.vue';
 
 const authStore = useAuthStore();
 const { isAuthenticated, loadingAuth } = storeToRefs(authStore);
