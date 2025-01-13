@@ -89,14 +89,13 @@ import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
 
 import axios from '@/config/axios';
+import { useCookies } from '@vueuse/integrations/useCookies';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useCookies } from '@vueuse/integrations/useCookies'
 
-import type { User } from '@/types/models';
-import { useAuthStore } from '@/stores/auth';
 import { ACCESS_TOKEN_KEY } from '@/constants';
-
+import { useAuthStore } from '@/stores/auth';
+import type { User } from '@/types/models';
 
 interface LoginResponse {
   user: User
@@ -108,6 +107,8 @@ const cookies = useCookies();
 const toast = useToast();
 const router = useRouter();
 const authStore = useAuthStore();
+
+console.log("isAuthenticated in LoginView", authStore.isAuthenticated);
 
 const loading = ref<boolean>(false);
 
@@ -135,7 +136,7 @@ const handleLogin = async () => {
     });
 
     // Store user information in auth store
-    authStore.setUser(user);
+    authStore.setAuth(user);
 
     // Navigate to home page
     router.push('/');

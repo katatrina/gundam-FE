@@ -1,12 +1,17 @@
-import { useCookies } from '@vueuse/integrations/useCookies'
-import { useAuthStore } from '@/stores/auth'
 import axios from '@/config/axios'
-import type { User } from '@/types/models'
 import { ACCESS_TOKEN_KEY } from '@/constants'
+import { useAuthStore } from '@/stores/auth'
+import type { User } from '@/types/models'
+import { useCookies } from '@vueuse/integrations/useCookies'
 
-export async function verifyAccessToken() {
+export async function verifyAccessToken(access_token: string) {
   const cookies = useCookies()
   const authStore = useAuthStore()
+
+  if (!access_token) {
+    authStore.clearAuth()
+    return false
+  }
 
   try {
     authStore.setLoadingAuth(true)
@@ -14,25 +19,21 @@ export async function verifyAccessToken() {
     // Sleep for 1 second to show the loading spinner
     // await new Promise((resolve) => setTimeout(resolve, 500))
 
-    // Get the token from cookies
-    const token: string = cookies.get(ACCESS_TOKEN_KEY)
-
-    if (!token) {
-      authStore.clearUser()
-      return
-    }
-
     // Make an API call to verify the token
-    const response = await axios.post<User>('/tokens/verify', { access_token: token })
+    const response = await axios.post<User>('/tokens/verify', { access_token })
 
-    // Token is valid, you can store user data if needed
-    authStore.setUser(response.data)
+    // Token is valid, store the user data
+    authStore.setAuth(response.data)
+
+    return true
   } catch (error: any) {
     console.error('Token verification failed:', error)
 
     cookies.remove(ACCESS_TOKEN_KEY)
-    authStore.clearUser()
+    authStore.clearAuth()
   } finally {
     authStore.setLoadingAuth(false)
   }
+
+  console.log('isAuthenticated in verifyAccessToken: ', authStore.isAuthenticated)
 }

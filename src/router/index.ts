@@ -6,7 +6,6 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 
 const routes = [
   {
@@ -47,13 +46,10 @@ const router = createRouter({
   routes: routes,
 })
 
-router.beforeEach(async (to, from, next) => {
-  // ✅ This will work because the router starts its navigation after
-  // the router is installed and pinia will be installed too
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  const { isAuthenticated } = storeToRefs(authStore)
 
-  if (isAuthenticated.value === false && ['login'].includes(to.name as string)) {
+  if (to.name === 'login' && authStore.isAuthenticated) {
     next({ name: 'home' })
   } else next()
 })

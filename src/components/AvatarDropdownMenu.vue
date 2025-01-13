@@ -29,19 +29,18 @@
 </template>
 
 <script setup lang="ts">
-import Avatar from 'primevue/avatar';
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ACCESS_TOKEN_KEY } from '@/constants';
 import { useAuthStore } from '@/stores/auth';
 import { useCookies } from '@vueuse/integrations/useCookies';
-import { ACCESS_TOKEN_KEY } from '@/constants';
+import Avatar from 'primevue/avatar';
 import { useToast } from 'primevue/usetoast';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const showDropdown = ref(false);
 const authStore = useAuthStore();
 const cookies = useCookies();
 const toast = useToast();
-
 
 const menuItems = ref([
   { label: "Profile", path: "/profile", icon: "pi pi-user" },
@@ -52,7 +51,7 @@ const menuItems = ref([
 const router = useRouter();
 
 const navigateTo = (path: any) => {
-  router.push(path); // Adjust for your router setup
+  router.push(path);
 };
 
 // Handle item click (including logout)
@@ -60,7 +59,7 @@ const handleItemClick = (item: { label: string, path: string }) => {
   if (item.label === "Log Out") {
     // Sleep for 500ms to show loading spinner
     setTimeout(() => {
-      authStore.clearUser();
+      authStore.clearAuth();
       cookies.remove(ACCESS_TOKEN_KEY);
       toast.add({ severity: 'success', summary: 'Đăng xuất thành công', life: 3000, group: 'br' });
     }, 500);

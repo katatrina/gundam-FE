@@ -16,6 +16,7 @@
     "@primevue/themes": "^4.2.5",
     "@vueuse/integrations": "^12.3.0",
     "axios": "^1.7.9",
+    "firebase": "^11.1.0",
     "pinia": "^2.3.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.5",

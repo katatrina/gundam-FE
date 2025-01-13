@@ -4,29 +4,29 @@ import { defineStore } from 'pinia'
 interface AuthState {
   user: User | null
   isAuthenticated: boolean
-  loadingAuth: boolean
+  isLoadingAuth: boolean
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
     isAuthenticated: false,
-    loadingAuth: false,
+    isLoadingAuth: false,
   }),
 
   actions: {
-    setUser(user: User) {
+    setAuth(user: User) {
       this.user = user
       this.isAuthenticated = true
     },
 
-    clearUser() {
+    clearAuth() {
       this.user = null
       this.isAuthenticated = false
     },
 
     setLoadingAuth(loading: boolean) {
-      this.loadingAuth = loading
+      this.isLoadingAuth = loading
     },
   },
 })
