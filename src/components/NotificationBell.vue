@@ -50,22 +50,6 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.my-popover {
-  .p-popover {
-    // margin-top: 0.5rem;
-    // min-width: 350px;
-
-    // Adjust arrow position
-    // &:before,
-    // &:after {
-    //   right: auto !important;
-    //   left: 1rem !important;
-    // }
-  }
-}
-</style>
-
 <script setup lang="ts">
 import db from '@/config/firebase';
 import { useAuthStore } from '@/stores/auth';
