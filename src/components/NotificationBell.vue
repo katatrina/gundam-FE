@@ -118,8 +118,6 @@ const fetchNotifications = async () => {
   }
 };
 
-
-
 // Mark all notifications as read in Firestore (only if there are unread ones)
 const markAllAsRead = async () => {
   const unreadNotifications = notifications.value.filter(notification => !notification.read);

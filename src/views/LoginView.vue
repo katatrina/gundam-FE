@@ -2,7 +2,7 @@
   <div class="w-full">
     <!-- Header with white background -->
     <header class="bg-white shadow-sm">
-      <div class="container mx-auto px-4 py-2">
+      <div class="mx-auto px-24 py-2">
         <nav class="flex items-center justify-between h-16">
           <!-- Logo -->
           <div class="flex items-center">
@@ -65,7 +65,7 @@
 
           <div class="mt-4 text-center">
             <span class="text-sm font-light">Chưa có tài khoản? </span>
-            <RouterLink to="/register" class="text-emerald-500 hover:underline font-medium">
+            <RouterLink to="#" class="text-emerald-500 hover:underline font-medium">
               Đăng Ký
             </RouterLink>
           </div>

@@ -3,7 +3,7 @@
     <div class="flex flex-col items-end " @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
       <!-- Avatar -->
       <div class="cursor-pointer hover:bg-gray-100 p-2">
-        <Avatar icon="pi pi-user" size="large" shape="circle" />
+        <img src="@/assets/images/user-avatar.png" alt="avatar" class="w-12 h-12" />
       </div>
 
       <!-- Invisible bridge -->
@@ -32,7 +32,6 @@
 import { ACCESS_TOKEN_KEY } from '@/constants';
 import { useAuthStore } from '@/stores/auth';
 import { useCookies } from '@vueuse/integrations/useCookies';
-import Avatar from 'primevue/avatar';
 import { useToast } from 'primevue/usetoast';
 import { ref } from "vue";
 import { useRouter } from "vue-router";
