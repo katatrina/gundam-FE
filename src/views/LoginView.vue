@@ -109,7 +109,7 @@ const handleLogin = async () => {
   await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
-    const response = await axios.post<LoginResponse>('/users/login', {
+    const response = await axios.post<LoginResponse>('/auth/login', {
       email: email.value,
       password: password.value,
     });
@@ -160,9 +160,59 @@ const handleLogin = async () => {
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-function onGoogleCredentialResponse(token: string) {
-  // Handle the credential response
-  console.log('ID token received:', token);
-  // Add your authentication logic here
+async function onGoogleCredentialResponse(token: string) {
+  loading.value = true;
+
+  // sleep for 500ms to show loading spinner
+  // await new Promise(resolve => setTimeout(resolve, 500));
+
+  try {
+    const response = await axios.post<LoginResponse>('/auth/google-login', {
+      id_token: token,
+    });
+
+    const { access_token, user } = response.data;
+
+    // Save access token to cookies
+    cookies.set(ACCESS_TOKEN_KEY, access_token, {
+      expires: new Date(response.data.access_token_expires_at),
+      sameSite: 'strict',
+    });
+
+    // Store user information in auth store
+    authStore.setAuth(user);
+
+    // Navigate to home page
+    router.push('/');
+
+    // Show success notification
+    toast.add({
+      severity: 'success',
+      summary: "Đăng nhập thành công",
+      // detail: `Chào mừng, ${response.data.user.email} 🤗`,
+      life: 3000,
+      group: 'br',
+    });
+  } catch (error: any) {
+    const statusCode = error.response.status;
+    if (statusCode === 401 || statusCode === 404) {
+      toast.add({
+        severity: 'error',
+        summary: "Đăng nhập thất bại",
+        detail: 'Thông tin đăng nhập không chính xác.',
+        life: 3000
+      });
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: "Đăng nhập không thành công",
+        detail: 'Lỗi hệ thống, vui lòng thử lại sau.',
+        life: 3000
+      });
+    }
+  } finally {
+    loading.value = false;
+  }
 }
+
 </script>

@@ -3,7 +3,8 @@
     <div class="flex flex-col items-end " @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
       <!-- Avatar -->
       <div class="cursor-pointer hover:bg-gray-100 p-2">
-        <img src="@/assets/images/user-avatar.png" alt="avatar" class="w-12 h-12" />
+        <img v-if="user?.picture" :src="user.picture" alt="avatar" class="w-12 h-12 rounded-full" />
+        <img v-else src="@/assets/images/user-avatar.png" alt="avatar" class="w-12 h-12" />
       </div>
 
       <!-- Invisible bridge -->
@@ -31,6 +32,7 @@
 <script setup lang="ts">
 import { ACCESS_TOKEN_KEY } from '@/constants';
 import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia'
 import { useCookies } from '@vueuse/integrations/useCookies';
 import { useToast } from 'primevue/usetoast';
 import { ref } from "vue";
@@ -41,9 +43,11 @@ const authStore = useAuthStore();
 const cookies = useCookies();
 const toast = useToast();
 
+const { user } = storeToRefs(authStore);
+
 const menuItems = ref([
-  { label: "Profile", path: "/profile", icon: "pi pi-user" },
-  { label: "Settings", path: "/settings", icon: "pi pi-cog" },
+  { label: "Profile", path: "#", icon: "pi pi-user" },
+  { label: "Settings", path: "#", icon: "pi pi-cog" },
   { label: "Log Out", path: "/logout", icon: "pi pi-sign-out" },
 ]);
 
