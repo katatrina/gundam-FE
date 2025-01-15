@@ -1,8 +1,8 @@
 <template>
-  <Toast />
   <div class="w-full min-h-screen flex flex-col justify-between">
     <RouterView />
   </div>
+  <Toast position="top-right" group="tr" />
   <Toast position="bottom-right" group="br" />
 </template>
 

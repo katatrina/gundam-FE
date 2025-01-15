@@ -26,7 +26,7 @@
       </div>
 
       <!-- Notifications List  -->
-      <div class="bg-white h-[445px] overflow-y-hidden">
+      <div class="bg-white h-[445px] overflow-y-hidden rounded-lg">
         <div v-if="notifications.length > 0" class="bg-emerald-50">
           <div v-for="(notification, index) in notifications" :key="notification.id" :class="[
             'p-2 cursor-pointer hover:bg-gray-50',
@@ -52,141 +52,33 @@
 </template>
 
 <script setup lang="ts">
-import db from '@/config/firebase';
-import { useAuthStore } from '@/stores/auth';
+import { useNotifications } from '@/composables/useNotifications';
 import formatTimestamp from '@/utils/time';
-import { collection, doc, getDocs, limit, onSnapshot, orderBy, query, Timestamp, where, writeBatch } from "firebase/firestore";
+import { vOnClickOutside } from '@vueuse/components';
 import OverlayBadge from 'primevue/overlaybadge';
-import { useToast } from 'primevue/usetoast';
-import { vOnClickOutside } from '@vueuse/components'
 
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { ref } from "vue";
 
-interface Notification {
-  id: string;
-  userID: string;
-  title: string;
-  message: string;
-  timestamp: Timestamp;
-  read: boolean;
-}
+const {
+  notifications,
+  unreadCount,
+  // error,
+  markAllAsRead
+} = useNotifications();
 
-const authStore = useAuthStore();
-const toast = useToast();
-const userID = authStore.user?.id
 
 const isPopoverVisible = ref(false);
-const notifications = ref<Notification[]>([]);
 
 // Handle click on bell icon to toggle the popover and mark notifications as read
 const onClickBellIcon = async () => {
   isPopoverVisible.value = !isPopoverVisible.value;
-  await markAllAsRead(); // Mark all notifications as read
-}
+  if (isPopoverVisible.value) {
+    await markAllAsRead();
+  }
+};
 
 function closeNotification() {
   isPopoverVisible.value = false;
 }
 
-// Computed for unread count (optimized)
-const unreadCount = computed(() => notifications.value.filter(notification => !notification.read).length);
-
-// Fetch notifications from Firestore (optimize by letting snapshot handle fetching)
-const fetchNotifications = async () => {
-  try {
-    const notificationsQuery = query(
-      collection(db, 'notifications'),
-      where('userID', '==', userID),
-      orderBy('timestamp', 'desc'),
-      limit(5) // Limit to 5 latest notifications
-    );
-    const snapshot = await getDocs(notificationsQuery);
-
-    notifications.value = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Notification[];
-  } catch (error) {
-    console.error('Error fetching notifications:', error);
-  }
-};
-
-// Mark all notifications as read in Firestore (only if there are unread ones)
-const markAllAsRead = async () => {
-  const unreadNotifications = notifications.value.filter(notification => !notification.read);
-
-  if (unreadNotifications.length === 0) return; // Skip batch update if no unread notifications
-
-  try {
-    const batch = writeBatch(db);
-    unreadNotifications.forEach(notification => {
-      const notificationRef = doc(db, 'notifications', notification.id);
-      batch.update(notificationRef, { read: true });
-    });
-
-    await batch.commit(); // Commit the batch update
-
-    // Update the local state to reflect the change
-    unreadNotifications.forEach(notification => {
-      notification.read = true;
-    });
-  } catch (error) {
-    console.error('Error marking notifications as read:', error);
-  }
-};
-
-
-
-// Real-time listener for new notifications
-const listenForNewNotifications = () => {
-  let isInitialSnapshot = true;
-
-  try {
-    const notificationsQuery = query(
-      collection(db, "notifications"),
-      where("userID", "==", userID),
-      orderBy("timestamp", "desc"),
-    );
-
-    const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-      if (isInitialSnapshot) {
-        isInitialSnapshot = false;
-        return;
-      }
-
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const newNotification = change.doc.data() as Notification;
-          console.log("New notification:", newNotification);
-
-          // Toast the new added notification
-          toast.add({
-            severity: "info",
-            summary: newNotification.title,
-            detail: newNotification.message,
-            life: 10000,
-          });
-
-          // Add the new notification to the local state
-          notifications.value.unshift({
-            ...newNotification,
-            id: change.doc.id,
-          });
-        }
-      });
-    });
-
-    onUnmounted(() => {
-      unsubscribe();
-    });
-  } catch (error) {
-    console.error("Error listening for new notifications:", error);
-  }
-};
-
-// Initialize on component mount (removes fetchNotifications if real-time is enough)
-onMounted(() => {
-  fetchNotifications(); // Fetch notifications from Firestore
-  listenForNewNotifications();  // Listening for notifications via real-time updates
-});
 </script>
