@@ -13,7 +13,7 @@
       <!-- Dropdown Menu -->
       <transition name="fade">
         <div v-if="showDropdown"
-          class="absolute top-full mt-1 right-2 w-48 bg-white rounded-md shadow-lg ring-2 ring-black ring-opacity-20 z-50">
+          class="absolute top-full mt-1 right-2 w-48 bg-white rounded-md shadow-lg ring-2 ring-black ring-opacity-10 z-50">
           <!-- Added top-full to position it below the avatar -->
           <ul class="py-2">
             <li v-for="item in menuItems" :key="item.label"

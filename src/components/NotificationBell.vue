@@ -1,15 +1,12 @@
 <template>
-  <div class="relative"> <!-- Add a container with relative positioning -->
+  <div class="relative select-none" v-on-click-outside="closeNotification">
     <!-- Notification Bell Icon with Badge -->
     <div v-tooltip.bottom="{
       value: 'Thông báo',
       pt: {
-        root: [
-          'text-sm',
-        ]
+        root: ['text-sm']
       }
-    }" class="cursor-pointer rounded-full hover:bg-gray-300 w-12 h-12 flex items-center justify-center"
-      @click="onClickBellIcon">
+    }" class="cursor-pointer rounded-full w-12 h-12 flex items-center justify-center" @click="onClickBellIcon">
       <OverlayBadge v-if="unreadCount" :value="unreadCount" severity="danger" size="small">
         <i class="pi pi-bell" style="font-size: 1.5rem"></i>
       </OverlayBadge>
@@ -17,49 +14,51 @@
     </div>
 
     <!-- Notifications List -->
-    <Popover ref="popover">
-      <div class="w-[300px]">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg font-semibold">Thông báo</h3>
-          <RouterLink to="#" class="text-sm text-blue-500 hover:underline">Xem tất cả</RouterLink>
-        </div>
+    <div v-if="isPopoverVisible"
+      class="absolute bg-white shadow-lg rounded-lg  w-[330px] z-10 bottom-auto top-full -left-60 border-2 border-gray-200 ">
 
-        <!-- Notifications List -->
-        <ScrollPanel style="width: 100%; height: 400px">
-          <div v-if="notifications.length > 0" class="bg-emerald-50">
-            <div v-for="notification in notifications" :key="notification.id"
-              class="p-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
-              <div class="flex items-start gap-3">
-                <div class="flex-1">
-                  <p class="font-medium">{{ notification.title }}</p>
-                  <p class="text-sm text-gray-600">{{ notification.message }}</p>
-                  <p class="text-xs text-gray-400 mt-1 break-words">
-                    {{ formatTimestamp(notification.timestamp) }}
-                  </p>
-                </div>
+      <!-- Header -->
+      <div class="flex justify-between items-center px-2 py-4 border-gray-200">
+        <h3 class="text-lg font-bold">Thông báo</h3>
+        <RouterLink to="#" class="text-base text-blue-500 hover:underline">
+          Xem tất cả
+        </RouterLink>
+      </div>
+
+      <!-- Notifications List  -->
+      <div class="bg-white h-[445px] overflow-y-hidden">
+        <div v-if="notifications.length > 0" class="bg-emerald-50">
+          <div v-for="(notification, index) in notifications" :key="notification.id" :class="[
+            'p-2 cursor-pointer hover:bg-gray-50',
+            { 'border-b border-gray-200': index !== notifications.length - 1 }
+          ]">
+            <div class="flex items-start gap-3">
+              <div class="flex-1">
+                <p class="font-semibold">{{ notification.title }}</p>
+                <p class="text-medium text-gray-600">{{ notification.message }}</p>
+                <p class="text-sm text-gray-400 mt-1 break-words">
+                  {{ formatTimestamp(notification.timestamp) }}
+                </p>
               </div>
             </div>
           </div>
-          <div v-else class="text-center text-gray-500 py-4">
-            Không có thông báo mới
-          </div>
-        </ScrollPanel>
+        </div>
+        <div v-else class="text-center text-gray-500 py-4">
+          Không có thông báo mới
+        </div>
       </div>
-    </Popover>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import db from '@/config/firebase';
 import { useAuthStore } from '@/stores/auth';
+import formatTimestamp from '@/utils/time';
 import { collection, doc, getDocs, limit, onSnapshot, orderBy, query, Timestamp, where, writeBatch } from "firebase/firestore";
 import OverlayBadge from 'primevue/overlaybadge';
-import Popover from 'primevue/popover';
-import ScrollPanel from 'primevue/scrollpanel';
-// import Panel from 'primevue/panel';
-import formatTimestamp from '@/utils/time';
 import { useToast } from 'primevue/usetoast';
+import { vOnClickOutside } from '@vueuse/components'
 
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
@@ -76,8 +75,18 @@ const authStore = useAuthStore();
 const toast = useToast();
 const userID = authStore.user?.id
 
-const popover = ref();
+const isPopoverVisible = ref(false);
 const notifications = ref<Notification[]>([]);
+
+// Handle click on bell icon to toggle the popover and mark notifications as read
+const onClickBellIcon = async () => {
+  isPopoverVisible.value = !isPopoverVisible.value;
+  await markAllAsRead(); // Mark all notifications as read
+}
+
+function closeNotification() {
+  isPopoverVisible.value = false;
+}
 
 // Computed for unread count (optimized)
 const unreadCount = computed(() => notifications.value.filter(notification => !notification.read).length);
@@ -87,7 +96,7 @@ const fetchNotifications = async () => {
   try {
     const notificationsQuery = query(
       collection(db, 'notifications'),
-      where('userID', '==', String(userID)),
+      where('userID', '==', userID),
       orderBy('timestamp', 'desc'),
       limit(5) // Limit to 5 latest notifications
     );
@@ -126,11 +135,7 @@ const markAllAsRead = async () => {
   }
 };
 
-// Handle click on bell icon to toggle the popover and mark notifications as read
-const onClickBellIcon = async (event: any) => {
-  popover.value.toggle(event);
-  await markAllAsRead(); // Mark all notifications as read
-}
+
 
 // Real-time listener for new notifications
 const listenForNewNotifications = () => {
@@ -139,7 +144,7 @@ const listenForNewNotifications = () => {
   try {
     const notificationsQuery = query(
       collection(db, "notifications"),
-      where("userID", "==", String(userID)),
+      where("userID", "==", userID),
       orderBy("timestamp", "desc"),
     );
 
