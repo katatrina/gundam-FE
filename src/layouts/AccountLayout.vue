@@ -1,9 +1,9 @@
 <template>
   <!-- Account pages layout -->
-  <div class="bg-gray-100 text-sm">
-    <div class="flex gap-4">
+  <div class="text-sm">
+    <div class="flex flex-row gap-4">
       <!-- Left Section - Navigation Sidebar -->
-      <section class="w-64 bg-white rounded-md shadow-sm p-4">
+      <section class="w-52 bg-white rounded-md shadow-sm p-4">
         <AccountLeftSideBar />
       </section>
 
