@@ -36,7 +36,7 @@ import { storeToRefs } from 'pinia'
 import { useCookies } from '@vueuse/integrations/useCookies';
 import { useToast } from 'primevue/usetoast';
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const showDropdown = ref(false);
 const authStore = useAuthStore();
@@ -51,6 +51,7 @@ const menuItems = ref([
   { label: "Log Out", path: "/logout", icon: "pi pi-sign-out" },
 ]);
 
+const currentRoute = useRoute();
 const router = useRouter();
 
 const navigateTo = (path: any) => {
@@ -64,9 +65,14 @@ const handleItemClick = (item: { label: string, path: string }) => {
     setTimeout(() => {
       authStore.clearAuth();
       cookies.remove(ACCESS_TOKEN_KEY);
+
+      // Redirect to login page if the current route requires authentication
+      if (currentRoute.meta.requiresAuth) {
+        router.push("/login");
+      }
+
       toast.add({ severity: 'success', summary: 'Đăng xuất thành công', life: 3000, group: 'br' });
     }, 500);
-
   } else {
     navigateTo(item.path);
   }

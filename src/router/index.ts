@@ -44,11 +44,13 @@ const routes = [
             path: 'profile',
             name: 'account-profile',
             component: AccountProfileView,
+            meta: { requiresAuth: true },
           },
           {
             path: 'notifications',
             name: 'account-notifications',
             component: AccountNotificationsView,
+            meta: { requiresAuth: true },
           },
         ],
       },
@@ -70,7 +72,11 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
   if (to.name === 'login' && authStore.isAuthenticated) {
+    // Authenticated user trying to access login page
     next({ name: 'home' })
+  } else if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    // Unauthenticated user trying to access protected route
+    next({ name: 'login', query: { redirect: to.fullPath } })
   } else next()
 })
 

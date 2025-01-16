@@ -77,7 +77,7 @@ import AppLogo from '@/components/AppLogo.vue';
 import axios from '@/config/axios';
 import { useCookies } from '@vueuse/integrations/useCookies';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 import { ACCESS_TOKEN_KEY } from '@/constants';
 import { useAuthStore } from '@/stores/auth';
@@ -92,6 +92,7 @@ interface LoginResponse {
 
 const cookies = useCookies();
 const toast = useToast();
+const currentRoute = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -182,8 +183,12 @@ async function onGoogleCredentialResponse(token: string) {
     // Store user information in auth store
     authStore.setAuth(user);
 
-    // Navigate to home page
-    router.push('/');
+    // Navigate to the previous page or home page
+    if (currentRoute.query.redirect) {
+      router.push(currentRoute.query.redirect as string);
+    } else {
+      router.push('/');
+    }
 
     // Show success notification
     toast.add({
