@@ -6,6 +6,9 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import AccountLayout from '@/layouts/AccountLayout.vue'
+import AccountProfileView from '@/views/AccountProfileView.vue'
+import AccountNotificationsView from '@/views/AccountNotificationsView.vue'
 
 const routes = [
   {
@@ -31,6 +34,23 @@ const routes = [
         path: 'exchange',
         name: 'exchange',
         component: ExchangeView,
+      },
+      {
+        path: 'account',
+        component: AccountLayout,
+        redirect: { name: 'account-profile' },
+        children: [
+          {
+            path: 'profile',
+            name: 'account-profile',
+            component: AccountProfileView,
+          },
+          {
+            path: 'notifications',
+            name: 'account-notifications',
+            component: AccountNotificationsView,
+          },
+        ],
       },
     ],
   },

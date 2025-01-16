@@ -6,7 +6,8 @@
       pt: {
         root: ['text-sm']
       }
-    }" class="cursor-pointer rounded-full w-12 h-12 flex items-center justify-center" @click="onClickBellIcon">
+    }" class="cursor-pointer rounded-full hover:bg-gray-300 w-12 h-12 flex items-center justify-center"
+      @click="onClickBellIcon">
       <OverlayBadge v-if="unreadCount" :value="unreadCount" severity="danger" size="small">
         <i class="pi pi-bell" style="font-size: 1.5rem"></i>
       </OverlayBadge>

@@ -1,7 +1,7 @@
 <!-- src/layouts/MainLayout.vue -->
 <template>
-  <div class="w-full">
-    <header>
+  <div class="w-full ">
+    <header class="bg-white shadow-sm">
       <div class="mx-auto py-2 px-24">
         <!-- Main Header -->
         <nav class="flex items-center h-16 gap-4">
@@ -30,23 +30,10 @@
 
           <!-- Show user avatar, notification, and cart when authenticated -->
           <div v-else-if="isAuthenticated" class="flex items-center h-10 space-x-16 ml-5 order-last">
-            <!-- Cart Icon -->
-            <div v-tooltip.bottom="{
-              value: 'Giỏ hàng',
-              pt: {
-                root: [
-                  'text-sm',
-                ]
-              }
-            }" class=" cursor-pointer rounded-full relative hover:bg-gray-300 w-14 h-14 flex items-center
-              justify-center">
-              <OverlayBadge v-if="cartItemsCount" :value="cartItemsCount" severity="danger" size="small">
-                <i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>
-              </OverlayBadge>
-              <i v-else class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>
-            </div>
+            <!-- Cart Icon that links to the cart page -->
+            <CartIcon />
 
-            <!-- Notification Icon -->
+            <!-- Notification Bell Icon + Dropdown -->
             <NotificationBell />
 
             <!-- Avatar Dropdown Menu -->
@@ -78,10 +65,11 @@
     <Divider layout="horizontal" type="solid" class="mt-0" />
 
     <!--  Main Content -->
-    <main class="mx-auto py-8 px-24">
+    <main class="mx-auto py-1 px-24">
       <RouterView />
     </main>
   </div>
+
   <AppFooter />
 </template>
 
@@ -96,11 +84,11 @@ import ProgressSpinner from 'primevue/progressspinner';
 import AppFooter from '@/components/AppFooter.vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AvatarDropdownMenu from '@/components/AvatarDropdownMenu.vue';
+import CartIcon from '@/components/CartIcon.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
-import OverlayBadge from 'primevue/overlaybadge';
 import { ref } from 'vue';
-import NotificationBell from '@/components/NotificationBell.vue';
 
 const authStore = useAuthStore();
 const { isAuthenticated, isLoadingAuth } = storeToRefs(authStore);
@@ -108,8 +96,6 @@ const { isAuthenticated, isLoadingAuth } = storeToRefs(authStore);
 console.log("isAuthenticated in MainLayout", isAuthenticated.value);
 
 const q = ref('');
-
-const cartItemsCount = ref(0);
 
 const links = ref([
   { name: 'TRANG CHỦ', path: '/' },

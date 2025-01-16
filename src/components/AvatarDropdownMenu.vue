@@ -46,8 +46,8 @@ const toast = useToast();
 const { user } = storeToRefs(authStore);
 
 const menuItems = ref([
-  { label: "Profile", path: "#", icon: "pi pi-user" },
-  { label: "Settings", path: "#", icon: "pi pi-cog" },
+  { label: "Profile", path: "/account/profile", icon: "pi pi-user" },
+  { label: "Notifications", path: "/account/notifications", icon: "pi pi-bell" },
   { label: "Log Out", path: "/logout", icon: "pi pi-sign-out" },
 ]);
 
