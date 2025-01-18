@@ -15,6 +15,13 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
+    setUser(user: User) {
+      if (this.user && this.user.id === user.id) {
+        // This check is a must
+        this.user = user
+      }
+    },
+
     setAuth(user: User) {
       this.user = user
       this.isAuthenticated = true

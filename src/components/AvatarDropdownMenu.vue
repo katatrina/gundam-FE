@@ -3,7 +3,8 @@
     <div class="flex flex-col items-end " @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
       <!-- Avatar -->
       <div class="cursor-pointer hover:bg-gray-100 p-2">
-        <img v-if="user?.picture" :src="user.picture" alt="avatar" class="w-12 h-12 rounded-full" />
+        <img v-if="user?.picture" :src="user.picture" alt="avatar" class="w-12 h-12 rounded-full"
+          referrerpolicy="no-referrer" />
         <img v-else src="@/assets/images/user-avatar.png" alt="avatar" class="w-12 h-12" />
       </div>
 
@@ -32,11 +33,11 @@
 <script setup lang="ts">
 import { ACCESS_TOKEN_KEY } from '@/constants';
 import { useAuthStore } from '@/stores/auth';
-import { storeToRefs } from 'pinia'
 import { useCookies } from '@vueuse/integrations/useCookies';
+import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
 import { ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const showDropdown = ref(false);
 const authStore = useAuthStore();

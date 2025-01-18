@@ -42,7 +42,7 @@
           <div class="h-[44px]">
             <div class="flex items-center gap-4">
               <div class="w-32"></div>
-              <Button type="button" label="Lưu" class="w-20" :loading="isSubmitting" />
+              <Button type="submit" label="Lưu" class="w-20" :loading="isSubmitting" />
             </div>
           </div>
         </form>
@@ -53,7 +53,7 @@
 
       <!-- Avatar Image: 1/5 width -->
       <div class="w-1/5 mx-auto">
-        <img :src="picture || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" />
+        <img :src="picture || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" referrerpolicy="no-referrer" />
         <!-- Chọn Ảnh button -->
         <div class="flex justify-center mt-4">
           <Button type="button" label="Chọn Ảnh" icon="pi pi-image"
@@ -74,12 +74,13 @@ import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/types/models';
 import { toTypedSchema } from '@vee-validate/yup';
-import { Button, Divider, InputText } from 'primevue';
+import { Button, Divider, InputText, useToast } from 'primevue';
 import { ErrorMessage, useForm } from 'vee-validate';
 import { onMounted, ref } from 'vue';
 import * as yup from 'yup';
 
 const authStore = useAuthStore();
+const toast = useToast();
 
 const email = ref<string>('');
 const phoneNumber = ref<string | null>(null);
@@ -96,18 +97,20 @@ const { defineField, handleSubmit, resetForm, isSubmitting, errors } = useForm({
 const [name] = defineField('name');
 
 const onUpdateUser = handleSubmit(async (values) => {
-  // Simulates a 1 second delay to show the loading button
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // Simulates delay to show the loading button
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   try {
-    const response = await axios.put(`/users/${authStore.user?.id}`, {
+    const response = await axios.put<User>(`/users/${authStore.user?.id}`, {
       name: values.name,
     });
 
-    console.log('User updated:', response.data);
     // Show success toast
+    toast.add({ severity: 'success', summary: 'Đã cập nhật hồ sơ', life: 3000, group: 'tc' });
 
-    // Update the user in the store
+    // Use the new updateUser action instead of direct assignment
+    // authStore.user = response.data;
+    authStore.setUser(response.data);
   } catch (error: any) {
     console.error('Error updating profile:', error);
   }

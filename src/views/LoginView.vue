@@ -118,9 +118,16 @@ const handleLogin = async () => {
     const { access_token, user } = response.data;
 
     // Save access token to cookies
+    console.log('Setting cookie when traditional login with options:', {
+      token: access_token,
+      expires: new Date(response.data.access_token_expires_at),
+      sameSite: 'strict',
+      path: '/'
+    });
     cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
+      path: '/',
     });
 
     // Store user information in auth store
@@ -180,6 +187,7 @@ async function onGoogleCredentialResponse(token: string) {
     cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
+      path: '/',
     });
 
     // Store user information in auth store
