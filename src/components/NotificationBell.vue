@@ -44,7 +44,7 @@
             </div>
           </div>
         </div>
-        <div v-else class="text-center text-gray-500 py-4">
+        <div v-else class="text-center text-gray-500 py-4 select-text">
           Không có thông báo mới
         </div>
       </div>

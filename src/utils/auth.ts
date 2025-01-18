@@ -8,10 +8,10 @@ export async function verifyAccessToken(access_token: string) {
   const cookies = useCookies()
   const authStore = useAuthStore()
 
-  if (!access_token) {
-    authStore.clearAuth()
-    return false
-  }
+  // if (!access_token) {
+  //   authStore.clearAuth()
+  //   return false
+  // }
 
   try {
     authStore.setLoadingAuth(true)
@@ -34,6 +34,4 @@ export async function verifyAccessToken(access_token: string) {
   } finally {
     authStore.setLoadingAuth(false)
   }
-
-  console.log('isAuthenticated in verifyAccessToken: ', authStore.isAuthenticated)
 }

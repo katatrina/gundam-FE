@@ -144,14 +144,16 @@ const handleLogin = async () => {
         severity: 'error',
         summary: "Đăng nhập thất bại",
         detail: 'Thông tin đăng nhập không chính xác.',
-        life: 3000
+        life: 3000,
+        group: 'br',
       });
     } else {
       toast.add({
         severity: 'error',
         summary: "Đăng nhập không thành công",
         detail: 'Lỗi hệ thống, vui lòng thử lại sau.',
-        life: 3000
+        life: 3000,
+        group: 'br',
       });
     }
   } finally {
@@ -205,14 +207,16 @@ async function onGoogleCredentialResponse(token: string) {
         severity: 'error',
         summary: "Đăng nhập thất bại",
         detail: 'Thông tin đăng nhập không chính xác.',
-        life: 3000
+        life: 3000,
+        group: 'br',
       });
     } else {
       toast.add({
         severity: 'error',
         summary: "Đăng nhập không thành công",
         detail: 'Lỗi hệ thống, vui lòng thử lại sau.',
-        life: 3000
+        life: 3000,
+        group: 'br',
       });
     }
   } finally {
