@@ -55,13 +55,23 @@
       <div class="w-1/5 mx-auto">
         <img :src="avatar || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" referrerpolicy="no-referrer" />
         <!-- File Select button -->
-        <div class="flex justify-center mt-4">
-          <input type="file" id="avatar-upload" accept=".jpeg,.jpg,.png" class="hidden" />
-          <label for="avatar-upload"
-            class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-500 hover:bg-gray-100 cursor-pointer transition-colors duration-200">
-            <i class="pi pi-image"></i>
-            <span>Chọn Ảnh</span>
-          </label>
+        <!-- File Upload element with VeeValidate Field -->
+        <div class="flex flex-col items-center mt-4">
+          <Field name="avatar" v-slot="{ handleChange, handleBlur, errorMessage }">
+            <div class="flex flex-col items-center">
+              <input type="file" id="avatar-upload" accept=".jpeg,.jpg,.png" class="hidden" @change="(e) => {
+                handleChange(e);
+                handleAvatarUpload(e);
+              }" @blur="handleBlur" />
+              <label for="avatar-upload"
+                class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-500 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+                :class="{ 'border-red-500': errorMessage }">
+                <i class="pi pi-image"></i>
+                <span>Chọn Ảnh</span>
+              </label>
+              <span v-if="errorMessage" class="text-red-500 text-sm mt-1 whitespace-nowrap">{{ errorMessage }}</span>
+            </div>
+          </Field>
         </div>
 
         <div class="text-center text-sm text-gray-500 mt-2">
@@ -80,7 +90,7 @@ import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/types/models';
 import { toTypedSchema } from '@vee-validate/yup';
 import { Button, Divider, InputText, useToast } from 'primevue';
-import { ErrorMessage, useForm } from 'vee-validate';
+import { ErrorMessage, useForm, Field } from 'vee-validate';
 import { onMounted, ref } from 'vue';
 import * as yup from 'yup';
 
@@ -95,11 +105,79 @@ const validationSchema = yup.object({
   name: yup.string().required('Tên không được để trống').min(2, 'Tên phải có ít nhất 2 ký tự')
 });
 
+// Create a separate validation schema for the file
+const fileValidationSchema = yup.object({
+  avatar: yup
+    .mixed<File>()
+    .test('fileSize', 'Dung lượng file phải nhỏ hơn 1 MB', (value) => {
+      if (!value) return true;
+      return value.size <= 1024 * 1024;
+    })
+    .test('fileType', 'Chỉ chấp nhận file JPEG hoặc PNG', (value) => {
+      if (!value) return true;
+      return ['image/jpeg', 'image/png'].includes(value.type);
+    })
+});
+
 const { defineField, handleSubmit, resetForm, isSubmitting, errors } = useForm({
   validationSchema: toTypedSchema(validationSchema)
 });
 
 const [name] = defineField('name');
+
+// Create a separate form for file upload
+const { handleSubmit: handleFileSubmit } = useForm({
+  validationSchema: fileValidationSchema
+});
+
+// Handle file upload
+const handleAvatarUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) return;
+
+  try {
+    // Validate using the file validation schema
+    await handleFileSubmit(async () => {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await axios.put<User>(
+        `/users/${authStore.user?.id}/avatar`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      avatar.value = response.data.avatar;
+      authStore.setUser(response.data);
+      // authStore.setUserAvatar(response.data.avatar);
+
+      toast.add({
+        severity: 'success',
+        summary: 'Thành công',
+        detail: 'Đã cập nhật ảnh đại diện',
+        life: 3000,
+        group: 'tc'
+      });
+    })();
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Lỗi',
+      detail: 'Không thể cập nhật ảnh đại diện',
+      life: 3000,
+      group: 'tc'
+    });
+  } finally {
+    input.value = '';
+  }
+};
 
 const onUpdateUser = handleSubmit(async (values) => {
   // Simulates delay to show the loading button

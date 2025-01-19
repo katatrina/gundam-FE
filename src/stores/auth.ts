@@ -22,6 +22,12 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    setUserAvatar(avatar: string) {
+      if (this.user) {
+        this.user.avatar = avatar
+      }
+    },
+
     setAuth(user: User) {
       this.user = user
       this.isAuthenticated = true
