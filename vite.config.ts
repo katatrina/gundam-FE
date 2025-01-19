@@ -16,8 +16,8 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: true,
-    headers: {
-      'Referer-Policy': 'no-referrer-when-downgrade',
-    },
+    // headers: {
+    //   'Cross-Origin-Opener-Policy': ['same-origin', 'same-origin-allow-popups'],
+    // },
   },
 })

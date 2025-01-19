@@ -21,9 +21,7 @@ export async function verifyAccessToken(access_token: string) {
     authStore.setAuth(response.data)
 
     return true
-  } catch (error: any) {
-    console.error('Token verification failed:', error)
-
+  } catch {
     cookies.remove(ACCESS_TOKEN_KEY)
     authStore.clearAuth()
   } finally {

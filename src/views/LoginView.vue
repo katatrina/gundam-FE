@@ -118,12 +118,6 @@ const handleLogin = async () => {
     const { access_token, user } = response.data;
 
     // Save access token to cookies
-    console.log('Setting cookie when traditional login with options:', {
-      token: access_token,
-      expires: new Date(response.data.access_token_expires_at),
-      sameSite: 'strict',
-      path: '/'
-    });
     cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
@@ -171,19 +165,28 @@ const handleLogin = async () => {
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 async function onGoogleCredentialResponse(token: string) {
+  console.log('Received Google credential response');
   loading.value = true;
 
   // sleep for 500ms to show loading spinner
   // await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
+    console.log('Sending token to backend...');
     const response = await axios.post<LoginResponse>('/auth/google-login', {
       id_token: token,
     });
+    console.log('Backend response received:', response.status);
 
     const { access_token, user } = response.data;
 
     // Save access token to cookies
+    // Log cookie setting
+    console.log('Setting cookie with token:', {
+      expires: new Date(response.data.access_token_expires_at),
+      sameSite: 'strict',
+      path: '/',
+    });
     cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
@@ -209,6 +212,7 @@ async function onGoogleCredentialResponse(token: string) {
       group: 'br',
     });
   } catch (error: any) {
+    console.error('Google login error:', error);
     const statusCode = error.response.status;
     if (statusCode === 401 || statusCode === 404) {
       toast.add({
