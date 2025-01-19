@@ -6,6 +6,6 @@ export interface User {
   phone_number: string | null
   phone_number_verified: boolean
   role: string
-  picture: string | null
+  avatar: string | null
   created_at: string
 }

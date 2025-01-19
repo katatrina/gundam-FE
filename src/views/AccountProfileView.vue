@@ -53,12 +53,17 @@
 
       <!-- Avatar Image: 1/5 width -->
       <div class="w-1/5 mx-auto">
-        <img :src="picture || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" referrerpolicy="no-referrer" />
-        <!-- Chọn Ảnh button -->
+        <img :src="avatar || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" referrerpolicy="no-referrer" />
+        <!-- File Select button -->
         <div class="flex justify-center mt-4">
-          <Button type="button" label="Chọn Ảnh" icon="pi pi-image"
-            class="bg-white border-gray-200 text-gray-500 hover:bg-gray-100" />
+          <input type="file" id="avatar-upload" accept=".jpeg,.jpg,.png" class="hidden" />
+          <label for="avatar-upload"
+            class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-500 hover:bg-gray-100 cursor-pointer transition-colors duration-200">
+            <i class="pi pi-image"></i>
+            <span>Chọn Ảnh</span>
+          </label>
         </div>
+
         <div class="text-center text-sm text-gray-500 mt-2">
           Dụng lượng file tối đa 1 MB
           <br />
@@ -84,7 +89,7 @@ const toast = useToast();
 
 const email = ref<string>('');
 const phoneNumber = ref<string | null>(null);
-const picture = ref<string | null>(null);
+const avatar = ref<string | null>(null);
 
 const validationSchema = yup.object({
   name: yup.string().required('Tên không được để trống').min(2, 'Tên phải có ít nhất 2 ký tự')
@@ -124,7 +129,7 @@ onMounted(async () => {
     const data = response.data;
     email.value = data.email;
     phoneNumber.value = data.phone_number;
-    picture.value = data.picture;
+    avatar.value = data.avatar;
 
     // Only reset the validated field
     resetForm({
