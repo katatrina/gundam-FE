@@ -54,20 +54,22 @@
       <!-- Avatar Image: 1/5 width -->
       <div class="w-1/5 mx-auto">
         <img :src="avatar || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" referrerpolicy="no-referrer" />
+
         <!-- File Select button -->
-        <!-- File Upload element with VeeValidate Field -->
         <div class="flex flex-col items-center mt-4">
           <Field name="avatar" v-slot="{ handleChange, handleBlur, errorMessage }">
             <div class="flex flex-col items-center">
               <input type="file" id="avatar-upload" accept=".jpeg,.jpg,.png" class="hidden" @change="(e) => {
                 handleChange(e);
                 handleAvatarUpload(e);
-              }" @blur="handleBlur" />
-              <label for="avatar-upload"
-                class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-500 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
-                :class="{ 'border-red-500': errorMessage }">
-                <i class="pi pi-image"></i>
-                <span>Chọn Ảnh</span>
+              }" @blur="handleBlur" :disabled="isLoadingNewAvatar" />
+              <label for="avatar-upload" :class="[
+                'flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md transition-colors duration-200',
+                isLoadingNewAvatar ? 'opacity-75 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-100 cursor-pointer'
+              ]">
+                <ProgressSpinner v-if="isLoadingNewAvatar" style="width:20px;height:20px" />
+                <i v-else class="pi pi-image"></i>
+                <span>{{ isLoadingNewAvatar ? 'Đang tải...' : 'Chọn Ảnh' }}</span>
               </label>
               <span v-if="errorMessage" class="text-red-500 text-sm mt-1 whitespace-nowrap">{{ errorMessage }}</span>
             </div>
@@ -89,10 +91,14 @@ import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/types/models';
 import { toTypedSchema } from '@vee-validate/yup';
-import { Button, Divider, InputText, useToast } from 'primevue';
+import { Button, Divider, InputText, useToast, ProgressSpinner } from 'primevue';
 import { ErrorMessage, useForm, Field } from 'vee-validate';
 import { onMounted, ref } from 'vue';
 import * as yup from 'yup';
+
+interface updateAvatarResponse {
+  avatar_url: string;
+}
 
 const authStore = useAuthStore();
 const toast = useToast();
@@ -100,6 +106,7 @@ const toast = useToast();
 const email = ref<string>('');
 const phoneNumber = ref<string | null>(null);
 const avatar = ref<string | null>(null);
+const isLoadingNewAvatar = ref(false);
 
 const validationSchema = yup.object({
   name: yup.string().required('Tên không được để trống').min(2, 'Tên phải có ít nhất 2 ký tự')
@@ -138,12 +145,14 @@ const handleAvatarUpload = async (event: Event) => {
   if (!file) return;
 
   try {
+    isLoadingNewAvatar.value = true;
+
     // Validate using the file validation schema
     await handleFileSubmit(async () => {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await axios.patch<User>(
+      const response = await axios.patch<updateAvatarResponse>(
         `/users/${authStore.user?.id}/avatar`,
         formData,
         {
@@ -152,15 +161,14 @@ const handleAvatarUpload = async (event: Event) => {
           }
         }
       );
+      const data = response.data;
 
-      avatar.value = response.data.avatar;
-      authStore.setUser(response.data);
-      // authStore.setUserAvatar(response.data.avatar);
+      avatar.value = data.avatar_url;
+      authStore.setUserAvatar(data.avatar_url);
 
       toast.add({
         severity: 'success',
-        summary: 'Thành công',
-        detail: 'Đã cập nhật ảnh đại diện',
+        summary: 'Đã cập nhật ảnh đại diện',
         life: 3000,
         group: 'tc'
       });
@@ -175,6 +183,7 @@ const handleAvatarUpload = async (event: Event) => {
       group: 'tc'
     });
   } finally {
+    isLoadingNewAvatar.value = false;
     input.value = '';
   }
 };

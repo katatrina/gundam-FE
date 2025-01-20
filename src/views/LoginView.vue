@@ -207,24 +207,7 @@ async function onGoogleCredentialResponse(token: string) {
     });
   } catch (error: any) {
     console.error('Google login error:', error);
-    const statusCode = error.response.status;
-    if (statusCode === 401 || statusCode === 404) {
-      toast.add({
-        severity: 'error',
-        summary: "Đăng nhập thất bại",
-        detail: 'Thông tin đăng nhập không chính xác.',
-        life: 3000,
-        group: 'br',
-      });
-    } else {
-      toast.add({
-        severity: 'error',
-        summary: "Đăng nhập không thành công",
-        detail: 'Lỗi hệ thống, vui lòng thử lại sau.',
-        life: 3000,
-        group: 'br',
-      });
-    }
+    
   } finally {
     loading.value = false;
   }
