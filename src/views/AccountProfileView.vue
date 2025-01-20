@@ -143,7 +143,7 @@ const handleAvatarUpload = async (event: Event) => {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await axios.put<User>(
+      const response = await axios.patch<User>(
         `/users/${authStore.user?.id}/avatar`,
         formData,
         {

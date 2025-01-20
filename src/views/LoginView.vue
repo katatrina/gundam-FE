@@ -165,28 +165,22 @@ const handleLogin = async () => {
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 async function onGoogleCredentialResponse(token: string) {
-  console.log('Received Google credential response');
   loading.value = true;
 
   // sleep for 500ms to show loading spinner
-  // await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
-    console.log('Sending token to backend...');
     const response = await axios.post<LoginResponse>('/auth/google-login', {
       id_token: token,
     });
-    console.log('Backend response received:', response.status);
 
     const { access_token, user } = response.data;
 
     // Save access token to cookies
-    // Log cookie setting
-    console.log('Setting cookie with token:', {
-      expires: new Date(response.data.access_token_expires_at),
-      sameSite: 'strict',
-      path: '/',
-    });
+    console.log('access_token_expires_at', response.data.access_token_expires_at);
+    // console.log("new Date(response.data.access_token_expires_at)", new Date(response.data.access_token_expires_at));
+
     cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',

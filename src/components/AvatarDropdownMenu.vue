@@ -65,12 +65,19 @@ const handleItemClick = (item: { label: string, path: string }) => {
     // Sleep for 500ms to show loading spinner
     setTimeout(() => {
       authStore.clearAuth();
-      cookies.remove(ACCESS_TOKEN_KEY);
+      console.log("Before logout: ", cookies.get(ACCESS_TOKEN_KEY));
+
+      cookies.remove(ACCESS_TOKEN_KEY, {
+        path: "/",
+      });
 
       // Redirect to login page if the current route requires authentication
       if (currentRoute.meta.requiresAuth) {
         router.push("/login");
       }
+
+      console.log("After logout: ", cookies.get(ACCESS_TOKEN_KEY));
+
 
       toast.add({ severity: 'success', summary: 'Đăng xuất thành công', life: 3000, group: 'br' });
     }, 500);
