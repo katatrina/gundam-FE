@@ -1,14 +1,14 @@
 import MainLayout from '@/layouts/MainLayout.vue'
-import AuctionView from '@/views/AuctionView.vue'
-import CategoriesView from '@/views/CategoriesView.vue'
-import ExchangeView from '@/views/ExchangeView.vue'
-import HomeView from '@/views/HomeView.vue'
-import LoginView from '@/views/LoginView.vue'
+import AuctionView from '@/views/public/AuctionView.vue'
+import CategoriesView from '@/views/public/CategoriesView.vue'
+import ExchangeView from '@/views/public/ExchangeView.vue'
+import HomeView from '@/views/public/HomeView.vue'
+import LoginView from '@/views/authentication/LoginView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AccountLayout from '@/layouts/AccountLayout.vue'
-import AccountProfileView from '@/views/AccountProfileView.vue'
-import AccountNotificationsView from '@/views/AccountNotificationsView.vue'
+import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
+import AccountNotificationsView from '@/views/authenticated/AccountNotificationsView.vue'
 
 const routes = [
   {

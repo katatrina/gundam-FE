@@ -81,19 +81,17 @@ import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
 import ProgressSpinner from 'primevue/progressspinner';
 
-import AppFooter from '@/components/AppFooter.vue';
-import AppLogo from '@/components/AppLogo.vue';
-import AvatarDropdownMenu from '@/components/AvatarDropdownMenu.vue';
-import CartIcon from '@/components/CartIcon.vue';
-import NotificationBell from '@/components/NotificationBell.vue';
+import AppFooter from '@/components/common/AppFooter.vue';
+import AppLogo from '@/components/common/AppLogo.vue';
+import AvatarDropdownMenu from '@/components/common/AvatarDropdownMenu.vue';
+import CartIcon from '@/components/common/CartIcon.vue';
+import NotificationBell from '@/components/common/NotificationBell.vue';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 
 const authStore = useAuthStore();
 const { isAuthenticated, isLoadingAuth } = storeToRefs(authStore);
-
-console.log("isAuthenticated in MainLayout", isAuthenticated.value);
 
 const q = ref('');
 

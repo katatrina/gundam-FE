@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
 
     setUserAvatar(avatar: string) {
       if (this.user) {
-        this.user.avatar = avatar
+        this.user.avatar_url = avatar
       }
     },
 

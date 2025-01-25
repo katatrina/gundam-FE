@@ -1,26 +1,26 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import db from '@/config/firebase'
+import { useAuthStore } from '@/stores/auth'
 import {
   collection,
   doc,
-  query,
-  where,
-  orderBy,
   limit,
   onSnapshot,
-  writeBatch,
+  orderBy,
+  query,
   Timestamp,
+  where,
+  writeBatch,
 } from 'firebase/firestore'
-import db from '@/config/firebase'
-import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 interface Notification {
   id: string
-  userID: string
+  user_id: string
   title: string
   message: string
-  timestamp: Timestamp
   read: boolean
+  created_at: Timestamp
 }
 
 export function useNotifications(maxNotifications = 5) {
@@ -44,8 +44,8 @@ export function useNotifications(maxNotifications = 5) {
 
     const notificationsQuery = query(
       collection(db, 'notifications'),
-      where('userID', '==', userID),
-      orderBy('timestamp', 'desc'),
+      where('user_id', '==', userID),
+      orderBy('created_at', 'desc'),
       limit(maxNotifications),
     )
 

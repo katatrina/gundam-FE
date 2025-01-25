@@ -18,5 +18,5 @@
 </template>
 
 <script setup lang="ts">
-import AccountLeftSideBar from '@/components/AccountLeftSideBar.vue';
+import AccountLeftSideBar from '@/components/profile/AccountLeftSideBar.vue';
 </script>

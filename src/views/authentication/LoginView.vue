@@ -38,9 +38,7 @@
 
           <!-- hoặc -->
           <div class="flex items-center mb-1 justify-center">
-            <!-- <Divider class="flex-1" /> -->
             <span class="mx-4 text-gray-500 italic">hoặc</span>
-            <!-- <Divider class="flex-1" /> -->
           </div>
 
           <!-- Google Sign-In Button -->
@@ -67,12 +65,10 @@
 <script setup lang="ts">
 import loginBg from '@/assets/images/login-bg.jpg';
 
-import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import { useToast } from 'primevue/usetoast';
+import { Button, InputText, useToast } from 'primevue';
 
-import AppFooter from '@/components/AppFooter.vue';
-import AppLogo from '@/components/AppLogo.vue';
+import AppFooter from '@/components/common/AppFooter.vue';
+import AppLogo from '@/components/common/AppLogo.vue';
 
 import axios from '@/config/axios';
 import { useCookies } from '@vueuse/integrations/useCookies';
@@ -82,7 +78,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { ACCESS_TOKEN_KEY } from '@/constants';
 import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/types/models';
-import GoogleSignInButton from '@/components/GoogleSignInButton.vue';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton.vue';
 
 interface LoginResponse {
   user: User
@@ -95,8 +91,6 @@ const toast = useToast();
 const currentRoute = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-
-console.log("isAuthenticated in LoginView", authStore.isAuthenticated);
 
 const loading = ref<boolean>(false);
 
@@ -127,14 +121,17 @@ const handleLogin = async () => {
     // Store user information in auth store
     authStore.setAuth(user);
 
-    // Navigate to home page
-    router.push('/');
+    // Navigate to the previous page or home page
+    if (currentRoute.query.redirect) {
+      router.push(currentRoute.query.redirect as string);
+    } else {
+      router.push('/');
+    }
 
     // Show success notification
     toast.add({
       severity: 'success',
       summary: "Đăng nhập thành công",
-      // detail: `Chào mừng, ${response.data.user.email} 🤗`,
       life: 3000,
       group: 'br',
     });
@@ -177,10 +174,6 @@ async function onGoogleCredentialResponse(token: string) {
 
     const { access_token, user } = response.data;
 
-    // Save access token to cookies
-    console.log('access_token_expires_at', response.data.access_token_expires_at);
-    // console.log("new Date(response.data.access_token_expires_at)", new Date(response.data.access_token_expires_at));
-
     cookies.set(ACCESS_TOKEN_KEY, access_token, {
       expires: new Date(response.data.access_token_expires_at),
       sameSite: 'strict',
@@ -201,13 +194,12 @@ async function onGoogleCredentialResponse(token: string) {
     toast.add({
       severity: 'success',
       summary: "Đăng nhập thành công",
-      // detail: `Chào mừng, ${response.data.user.email} 🤗`,
       life: 3000,
       group: 'br',
     });
   } catch (error: any) {
     console.error('Google login error:', error);
-    
+
   } finally {
     loading.value = false;
   }

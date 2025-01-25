@@ -38,7 +38,7 @@
                 <p class="font-semibold">{{ notification.title }}</p>
                 <p class="text-medium text-gray-600">{{ notification.message }}</p>
                 <p class="text-sm text-gray-400 mt-1 break-words">
-                  {{ formatTimestamp(notification.timestamp) }}
+                  {{ formatTimestamp(notification.created_at) }}
                 </p>
               </div>
             </div>
