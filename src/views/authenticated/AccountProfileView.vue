@@ -12,10 +12,11 @@
                 :class="{ 'border-red-500': errors.fullName }"
                 :style="errors.fullName ? { backgroundColor: '#fffafa' } : {}" />
             </div>
-            <div v-if="errors.fullName" class="flex">
+            <div v-show="errors.fullName" class="flex">
               <div class="w-36"></div>
-              <ErrorMessage name="name" class="text-red-500 text-sm" />
+              <span class="text-red-500 text-sm">{{ errors.fullName }}</span>
             </div>
+
           </div>
 
           <!-- Email with consistent height -->
@@ -29,37 +30,7 @@
           <!-- Phone Number with consistent height -->
           <div class="h-[44px]">
             <div class="flex items-center gap-4">
-              <label class="w-32 flex-shrink-0 text-right">Số điện thoại</label>
-              <div v-if="phoneNumber" class="flex items-center gap-2">
-                {{ maskPhoneNumber(phoneNumber) }}
-                <button type="button" class="text-blue-600 underline">Thay Đổi</button>
-              </div>
-              <button v-else type="button" class="text-blue-600 underline"
-                @click="showUpdatePhoneDialog = true">Thêm</button>
-
-              <!-- Phone Update Dialog -->
-              <Dialog v-model:visible="showUpdatePhoneDialog" modal header="Cập nhật số điện thoại"
-                :style="{ width: '23rem' }" class="rounded-sm">
-                <span class="text-surface-500 dark:text-surface-400 block mb-4">Nhập số bạn muốn sử dụng</span>
-
-                <div class="mb-10">
-                  <InputGroup>
-                    <InputGroupAddon>
-                      <img src="@/assets/images/vietnam-flag-icon.png" alt="Vietnam Flag" class="w-6 h-6" />
-                    </InputGroupAddon>
-                    <InputText placeholder="Nhập số điện thoại" />
-                  </InputGroup>
-
-                  <!-- Error message for invalid phone number -->
-
-                </div>
-
-                <div class="flex justify-end gap-2">
-                  <Button type="button" label="Hủy" severity="secondary"
-                    @click="showUpdatePhoneDialog = false"></Button>
-                  <Button type="button" label="Tiếp Theo" @click="showUpdatePhoneDialog = false"></Button>
-                </div>
-              </Dialog>
+              <PhoneField :currentPhoneNumber="phoneNumber" />
             </div>
           </div>
 
@@ -112,14 +83,14 @@
 </template>
 
 <script setup lang="ts">
+import PhoneField from '@/components/profile/PhoneNumberField.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/types/models';
 import { toTypedSchema } from '@vee-validate/yup';
-import { Button, Divider, InputText, ProgressSpinner, useToast, Dialog, InputGroup, InputGroupAddon } from 'primevue';
-import { ErrorMessage, Field, useForm } from 'vee-validate';
+import { Button, Divider, InputText, ProgressSpinner, useToast } from 'primevue';
+import { Field, useForm } from 'vee-validate';
 import { onMounted, ref } from 'vue';
-import { maskPhoneNumber } from '@/utils/user';
 import * as yup from 'yup';
 
 interface updateAvatarResponse {
@@ -131,16 +102,15 @@ const toast = useToast();
 
 const email = ref<string>('');
 const phoneNumber = ref<string | null>(null);
-const showUpdatePhoneDialog = ref(false)
 const avatar = ref<string | null>(null);
 const isLoadingNewAvatar = ref(false);
 
-const validationSchema = yup.object({
+const mainFormValidationSchema = yup.object({
   fullName: yup.string().required('Tên không được để trống').min(2, 'Tên phải có ít nhất 2 ký tự')
 });
 
 // Create a separate validation schema for the file
-const fileValidationSchema = yup.object({
+const avatarValidationSchema = yup.object({
   avatar: yup
     .mixed<File>()
     .test('fileSize', 'Dung lượng file phải nhỏ hơn 1 MB', (value) => {
@@ -154,14 +124,14 @@ const fileValidationSchema = yup.object({
 });
 
 const { defineField, handleSubmit, resetForm, isSubmitting, errors } = useForm({
-  validationSchema: toTypedSchema(validationSchema)
+  validationSchema: toTypedSchema(mainFormValidationSchema)
 });
 
 const [fullName] = defineField('fullName');
 
 // Create a separate form for file upload
 const { handleSubmit: handleFileSubmit } = useForm({
-  validationSchema: fileValidationSchema
+  validationSchema: avatarValidationSchema
 });
 
 // Handle file upload
