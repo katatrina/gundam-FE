@@ -5,7 +5,7 @@
       <div class="cursor-pointer hover:bg-gray-100 p-2">
         <img v-if="user?.avatar_url" :src="user.avatar_url" alt="avatar" class="w-12 h-12 rounded-full"
           referrerpolicy="no-referrer" />
-        <img v-else src="@/assets/images/user-avatar.png" alt="avatar" class="w-12 h-12" />
+        <img v-else src="@/assets/images/default-avatar.png" alt="avatar" class="w-12 h-12" />
       </div>
 
       <!-- Invisible bridge -->

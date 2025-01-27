@@ -49,7 +49,10 @@
 
       <!-- Avatar Image: 1/5 width -->
       <div class="w-1/5 mx-auto">
-        <img :src="avatar || ''" alt="avatar" class="rounded-full w-28 h-28 mx-auto" referrerpolicy="no-referrer" />
+        <img v-if="avatar" :src="avatar" alt="avatar" class="rounded-full w-28 h-28 mx-auto"
+          referrerpolicy="no-referrer" />
+        <img v-else src="@/assets/images/default-avatar.png" alt="default-avatar" class="rounded-full w-28 h-28 mx-auto"
+          referrerpolicy="no-referrer" />
 
         <!-- File Select button -->
         <div class="flex flex-col items-center mt-4">
@@ -123,7 +126,7 @@ const avatarValidationSchema = yup.object({
     })
 });
 
-const { defineField, handleSubmit, resetForm, isSubmitting, errors } = useForm({
+const { defineField, handleSubmit, resetForm, isSubmitting, errors, values } = useForm({
   validationSchema: toTypedSchema(mainFormValidationSchema)
 });
 
@@ -185,7 +188,7 @@ const handleAvatarUpload = async (event: Event) => {
   }
 };
 
-const onUpdateUser = handleSubmit(async (values) => {
+const onUpdateUser = handleSubmit.withControlled(async () => {
   // Simulates delay to show the loading button
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -208,13 +211,12 @@ onMounted(async () => {
   try {
     const response = await axios.get<User>(`/users/${authStore.user?.id}`);
 
-    // Set read-only fields
     const data = response.data;
     email.value = data.email;
     phoneNumber.value = data.phone_number;
     avatar.value = data.avatar_url;
 
-    // Only reset the validated field
+    // Set controlled values
     resetForm({
       values: {
         fullName: data.full_name

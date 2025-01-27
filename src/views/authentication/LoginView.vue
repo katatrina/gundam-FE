@@ -165,7 +165,7 @@ async function onGoogleCredentialResponse(token: string) {
   loading.value = true;
 
   // sleep for 500ms to show loading spinner
-  await new Promise(resolve => setTimeout(resolve, 500));
+  // await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
     const response = await axios.post<LoginResponse>('/auth/google-login', {
