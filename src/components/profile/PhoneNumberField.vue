@@ -63,12 +63,16 @@
       <div>
         <p class="text-surface-500 dark:text-surface-400 text-sm mb-6 text-center">
           Mã xác thực đã được gửi qua Zalo đến số
-          <span class="font-medium text-gray-900">{{ newPhonerNumber }}</span>.
+          <span class="flex items-center justify-center font-medium text-gray-900">
+            <img :src="zaloIcon" alt="Zalo icon" class="w-6 h-6 mr-1" />
+            {{ newPhonerNumber }}
+          </span>
         </p>
         <p class="text-surface-500 dark:text-surface-400 text-sm mb-2 text-center">
           Vui lòng nhập mã để xác nhận số điện thoại.
         </p>
       </div>
+
 
       <!-- OTP Input -->
       <div class="flex justify-center items-center mb-6">
@@ -86,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import zaloIcon from '@/assets/images/zalo-icon.svg';
 import { maskPhoneNumber } from '@/utils/user';
 import { toTypedSchema } from '@vee-validate/yup';
 import { Button, Dialog, InputGroup, InputGroupAddon, InputText, InputOtp } from 'primevue';
