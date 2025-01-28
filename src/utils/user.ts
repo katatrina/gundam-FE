@@ -1,6 +1,7 @@
 const maskPhoneNumber = (phoneNumber: string): string => {
-  // Only show the first 3 digits and the last 4 digits
-  return phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1****$3')
+  // Only show the last 3 digits of the phone number
+  // Only show the last 3 digits of the phone number
+  return phoneNumber.replace(/\d(?=\d{3})/g, '*');
 }
 
 export { maskPhoneNumber }

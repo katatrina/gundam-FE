@@ -28,6 +28,12 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    setPhoneNumber(phoneNumber: string) {
+      if (this.user) {
+        this.user.phone_number = phoneNumber
+      }
+    },
+
     setAuth(user: User) {
       this.user = user
       this.isAuthenticated = true

@@ -30,7 +30,7 @@
           <!-- Phone Number with consistent height -->
           <div class="h-[44px]">
             <div class="flex items-center gap-4">
-              <PhoneField :currentPhoneNumber="phoneNumber" />
+              <PhoneField :currentPhoneNumber="phoneNumber" @phone-updated="onPhoneUpdated" />
             </div>
           </div>
 
@@ -206,6 +206,11 @@ const onUpdateUser = handleSubmit.withControlled(async () => {
     console.error('Error updating profile:', error);
   }
 });
+
+const onPhoneUpdated = (newPhoneNumber: string) => {
+  console.log('Phone number updated:', newPhoneNumber);
+  phoneNumber.value = newPhoneNumber; // Update parent state if necessary
+};
 
 onMounted(async () => {
   try {

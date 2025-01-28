@@ -18,11 +18,16 @@
           <InputGroupAddon>
             <img src="@/assets/images/vietnam-flag-icon.png" alt="Vietnam Flag" class="w-6 h-6" />
           </InputGroupAddon>
-          <InputText v-model="newPhonerNumber" v-bind="newPhonerNumberAttrs" placeholder="Nhập số điện thoại"
+          <InputText v-model="newPhoneNumber" v-bind="newPhoneNumberAttrs" placeholder="Nhập số điện thoại"
             autocomplete="off" autofocus />
         </InputGroup>
 
-        <span class="text-red-500 text-sm ml-12">{{ errors.newPhoneNumber }}</span>
+        <!-- Fixed height container for error message -->
+        <div class="h-8 mt-1"> <!-- h-5 = 20px height, enough for one line of text -->
+          <span class="text-red-500 text-sm" v-if="errors.newPhoneNumber">
+            {{ errors.newPhoneNumber }}
+          </span>
+        </div>
       </div>
 
       <div class="flex justify-end gap-2">
@@ -35,54 +40,56 @@
   <!-- Step 2: Ask user whether they can accept OTP via Zalo -->
   <Dialog v-model:visible="showOTPAskingDialog" modal header="Cập nhật số điện thoại" :style="{ width: '21rem' }"
     class="rounded-sm" :closable="false">
-    <form @submit.prevent="proceedToStep3">
-      <p class="text-surface-500 dark:text-surface-400 text-sm mb-4">
-        Để đảm bảo số này là của bạn, chúng tôi sẽ gửi mã xác thực qua Zalo.
-      </p>
+    <p class="text-surface-500 dark:text-surface-400 mb-4">
+      Để đảm bảo số này là của bạn, chúng tôi sẽ gửi mã xác thực qua SMS.
+    </p>
 
-      <div class="flex items-center justify-between border rounded-md px-3 py-2 mb-6">
-        <div class="flex items-center gap-2">
-          <img src="@/assets/images/vietnam-flag-icon.png" alt="Vietnam Flag" class="w-6 h-4" />
-          <span class="text-base text-gray-900">{{ newPhonerNumber }}</span>
-        </div>
-        <span class="pi pi-pencil cursor-pointer" @click="backToStep1"></span>
+    <div class="flex items-center justify-between border rounded-md px-3 py-2 mb-6">
+      <div class="flex items-center gap-2">
+        <img src="@/assets/images/vietnam-flag-icon.png" alt="Vietnam Flag" class="w-6 h-6" />
+        <span class="text-base text-gray-900">{{ newPhoneNumber }}</span>
       </div>
+      <span class="pi pi-pencil cursor-pointer" @click="backToStep1"></span>
+    </div>
 
-      <div class="flex justify-end gap-3">
-        <Button type="button" label="Hủy" severity="secondary" class="rounded-md px-4 py-2"
-          @click="resetFormAndCloseDialog" />
-        <Button type="submit" label="Nhận Mã" class="rounded-md px-4 py-2" autofocus />
-      </div>
-    </form>
+    <div class="flex justify-end gap-3">
+      <Button type="button" label="Hủy" severity="secondary" class="rounded-md px-4 py-2"
+        @click="resetFormAndCloseDialog" :disabled="isLoadingOTP" />
+      <Button label="Nhận Mã" @click="proceedToStep3" class="rounded-md px-4 py-2" :loading="isLoadingOTP" autofocus />
+    </div>
   </Dialog>
 
   <!-- Step 3: Submit OTP -->
-  <Dialog v-model:visible="showOTPInputDialog" modal header="Cập nhật số điện thoại" :style="{ width: '22rem' }"
+  <Dialog v-model:visible="showOTPInputDialog" modal header="Cập nhật số điện thoại" :style="{ width: '24rem' }"
     class="rounded-lg shadow-lg" :closable="false" @show="focusOTPInput">
     <form @submit.prevent="handleOTPSubmit" class="flex flex-col h-full justify-between">
       <div>
-        <p class="text-surface-500 dark:text-surface-400 text-sm mb-6 text-center">
-          Mã xác thực đã được gửi qua Zalo đến số
+        <p class="text-surface-500 dark:text-surface-400 mb-6 text-center">
+          Mã xác thực đã được gửi đến số
           <span class="flex items-center justify-center font-medium text-gray-900">
-            <img :src="zaloIcon" alt="Zalo icon" class="w-6 h-6 mr-1" />
-            {{ newPhonerNumber }}
+            {{ newPhoneNumber }}
           </span>
         </p>
         <p class="text-surface-500 dark:text-surface-400 text-sm mb-2 text-center">
-          Vui lòng nhập mã để xác nhận số điện thoại.
+          Vui lòng nhập mã để xác nhận số điện thoại
         </p>
       </div>
 
 
       <!-- OTP Input -->
-      <div class="flex justify-center items-center mb-6">
-        <InputOtp v-model="OTPValue" variant="filled" integerOnly class="w-full max-w-[12rem] text-center" />
+      <div class="flex flex-col items-center mb-4">
+        <InputOtp v-model="OTPValue" :length="6" variant="filled" integerOnly class="flex justify-center gap-2" />
+      </div>
+
+      <!-- Send OTP again -->
+      <div class="text-center mb-6">
+        <button type="button" class="text-blue-600">Gửi lại</button>
       </div>
 
       <div class="flex justify-end gap-4 mt-auto">
         <Button type="button" label="Hủy" severity="secondary" class="rounded-md px-4 py-2"
-          @click="resetFormAndCloseDialog" />
-        <Button type="submit" label="Xác minh" />
+          @click="resetFormAndCloseDialog" :disabled="isVerifyingOTP" />
+        <Button type="submit" label="Xác Minh" :loading="isVerifyingOTP" />
       </div>
     </form>
   </Dialog>
@@ -90,10 +97,11 @@
 </template>
 
 <script setup lang="ts">
-import zaloIcon from '@/assets/images/zalo-icon.svg';
+import axios from '@/config/axios';
+import { useAuthStore } from '@/stores/auth';
 import { maskPhoneNumber } from '@/utils/user';
 import { toTypedSchema } from '@vee-validate/yup';
-import { Button, Dialog, InputGroup, InputGroupAddon, InputText, InputOtp } from 'primevue';
+import { Button, Dialog, InputGroup, InputGroupAddon, InputOtp, InputText, useToast } from 'primevue';
 import { useForm } from 'vee-validate';
 import { nextTick, ref } from 'vue';
 import * as yup from 'yup';
@@ -102,11 +110,28 @@ const props = defineProps<{
   currentPhoneNumber: string | null;
 }>()
 
-const OTPValue = ref('')
+interface GenerateOTPResponse {
+  otp_code: string;
+  phone_number: string;
+  expires_at: string;
+  can_resend_in: string;
+}
 
+// Define the emit event
+const emit = defineEmits<{
+  (e: 'phone-updated', newPhoneNumber: string): void;
+}>();
+
+const OTPValue = ref('')
+const authStore = useAuthStore()
+
+// const isInputtingNewPhoneNumber = ref(false)
+const isLoadingOTP = ref(false)
+const isVerifyingOTP = ref(false)
 const showUpdatePhoneNumberDialog = ref(false)
 const showOTPAskingDialog = ref(false)
 const showOTPInputDialog = ref(false)
+const toast = useToast();
 
 const newPhoneNumberSchema = yup.object({
   newPhoneNumber: yup.string()
@@ -118,23 +143,45 @@ const newPhoneNumberSchema = yup.object({
     })
 });
 
-const { defineField, errors, handleSubmit, resetField } = useForm({
+const { defineField, errors, handleSubmit, resetField, setFieldError } = useForm({
   validationSchema: toTypedSchema(newPhoneNumberSchema),
   initialValues: {
     newPhoneNumber: ''
   }
 });
 
-const [newPhonerNumber, newPhonerNumberAttrs] = defineField('newPhoneNumber', {
+const [newPhoneNumber, newPhoneNumberAttrs] = defineField('newPhoneNumber', {
   validateOnModelUpdate: false,
   validateOnBlur: false,
-  validateOnChange: false
+  validateOnChange: false,
 });
 
-const proceedToStep2 = handleSubmit(() => {
-  showUpdatePhoneNumberDialog.value = false;
-  showOTPAskingDialog.value = true;
-});
+const proceedToStep2 = handleSubmit(async () => {
+  try {
+    await axios.get(`/users/by-phone?phone_number=${newPhoneNumber.value}`);
+    // If we get here, it means the phone number exists
+    setFieldError('newPhoneNumber', 'Số điện thoại đã tồn tại');
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        // Phone number doesn't exist - this is what we want
+        showUpdatePhoneNumberDialog.value = false;
+        showOTPAskingDialog.value = true;
+        return;
+      }
+
+      // For other errors, show toast
+      toast.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Đã có lỗi xảy ra. Vui lòng thử lại',
+        life: 3000,
+        group: 'tr'
+      });
+    }
+  }
+}
+);
 
 const backToStep1 = () => {
   showOTPAskingDialog.value = false;
@@ -151,10 +198,78 @@ const focusOTPInput = () => {
   });
 };
 
-const proceedToStep3 = (() => {
-  showOTPAskingDialog.value = false;
-  showOTPInputDialog.value = true;
-});
+const generateOTP = async () => {
+  try {
+    isLoadingOTP.value = true;
+    const response = await axios.post<GenerateOTPResponse>('/otp/generate', { phone_number: newPhoneNumber.value });
+    console.log(response.data);
+
+    showOTPAskingDialog.value = false;
+    showOTPInputDialog.value = true;
+  } catch (error: any) {
+    console.error('Error generating OTP:', error);
+
+    toast.add({
+      severity: 'error',
+      summary: 'Không thể gửi mã xác thực. Vui lòng thử lại',
+      life: 3000,
+      group: 'tr'
+    });
+  } finally {
+    isLoadingOTP.value = false;
+  }
+};
+
+const proceedToStep3 = async () => {
+  await generateOTP();
+};
+
+const handleOTPSubmit = async () => {
+  if (OTPValue.value.length !== 6) return;
+  isVerifyingOTP.value = true;
+
+  try {
+    const response = await axios.post('/otp/verify', {
+      user_id: authStore.user?.id,
+      phone_number: newPhoneNumber.value,
+      otp_code: OTPValue.value
+    });
+
+    if (response.status === 200) {
+      emit('phone-updated', newPhoneNumber.value!);
+      authStore.setPhoneNumber(newPhoneNumber.value || '');
+
+      resetFormAndCloseDialog();
+
+      toast.add({
+        severity: 'success',
+        summary: 'Số điện thoại đã được cập nhật',
+        life: 3000,
+        group: 'tr'
+      });
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Mã xác thực đã hết hạn hoặc không hợp lệ',
+        life: 3000,
+        group: 'tr'
+      });
+    }
+  } catch (error: any) {
+    console.error('Error verifying OTP:', error);
+
+    toast.add({
+      severity: 'error',
+      summary: 'Lỗi',
+      detail: 'Đã có lỗi xảy ra. Vui lòng thử lại',
+      life: 3000,
+      group: 'tr'
+    });
+  } finally {
+    isVerifyingOTP.value = false;
+  }
+};
 
 const resetFormAndCloseDialog = () => {
   resetField('newPhoneNumber');
@@ -162,14 +277,7 @@ const resetFormAndCloseDialog = () => {
   showOTPAskingDialog.value = false;
   showOTPInputDialog.value = false;
   OTPValue.value = '';
-}
-
-const handleOTPSubmit = () => {
-  // Call API to send OTP
-  // Show a toast message
-  // Close the dialog
-  console.log('OTP submitted');
-}
+};
 
 </script>
 
