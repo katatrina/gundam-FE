@@ -83,7 +83,16 @@
 
       <!-- Send OTP again -->
       <div class="text-center mb-6">
-        <button type="button" class="text-blue-600">Gửi lại</button>
+        <button type="button" class="text-blue-600" :disabled="timeLeft > 0"
+          :class="{ 'opacity-50 cursor-not-allowed': timeLeft > 0 }" @click="generateOTP">
+          {{ timeLeft > 0
+            ? `Vui lòng chờ ${formatDuration(
+              { seconds: timeLeft },
+              { locale: vi }
+            )} để gửi lại`
+            : 'Gửi lại'
+          }}
+        </button>
       </div>
 
       <div class="flex justify-end gap-4 mt-auto">
@@ -99,11 +108,13 @@
 <script setup lang="ts">
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
+import { formatDuration, differenceInSeconds } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { maskPhoneNumber } from '@/utils/user';
 import { toTypedSchema } from '@vee-validate/yup';
 import { Button, Dialog, InputGroup, InputGroupAddon, InputOtp, InputText, useToast } from 'primevue';
 import { useForm } from 'vee-validate';
-import { nextTick, ref } from 'vue';
+import { nextTick, onUnmounted, ref } from 'vue';
 import * as yup from 'yup';
 
 const props = defineProps<{
@@ -133,6 +144,11 @@ const showOTPAskingDialog = ref(false)
 const showOTPInputDialog = ref(false)
 const toast = useToast();
 
+// Countdown related refs
+const canResendTime = ref<string | null>(null);
+const timeLeft = ref<number>(0);
+const countdownTimer = ref<number | null>(null);
+
 const newPhoneNumberSchema = yup.object({
   newPhoneNumber: yup.string()
     .required('Nhập một số hợp lệ')
@@ -156,6 +172,30 @@ const [newPhoneNumber, newPhoneNumberAttrs] = defineField('newPhoneNumber', {
   validateOnChange: false,
 });
 
+const startCountdown = (targetTime: string) => {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value);
+  }
+
+  const updateTimer = () => {
+    const target = new Date(targetTime);
+    const now = new Date();
+    const diffInSeconds = differenceInSeconds(target, now);
+
+    if (diffInSeconds <= 0) {
+      clearInterval(countdownTimer.value!);
+      timeLeft.value = 0;
+      canResendTime.value = null;
+      return;
+    }
+
+    timeLeft.value = diffInSeconds;
+  };
+
+  updateTimer();
+  countdownTimer.value = setInterval(updateTimer, 1000) as unknown as number;
+};
+
 const proceedToStep2 = handleSubmit(async () => {
   try {
     await axios.get(`/users/by-phone?phone_number=${newPhoneNumber.value}`);
@@ -175,7 +215,7 @@ const proceedToStep2 = handleSubmit(async () => {
         severity: 'error',
         summary: 'Lỗi',
         detail: 'Đã có lỗi xảy ra. Vui lòng thử lại',
-        life: 3000,
+        life: 5000,
         group: 'tr'
       });
     }
@@ -204,6 +244,10 @@ const generateOTP = async () => {
     const response = await axios.post<GenerateOTPResponse>('/otp/generate', { phone_number: newPhoneNumber.value });
     console.log(response.data);
 
+    // Start countdown with the received time
+    canResendTime.value = response.data.can_resend_in;
+    startCountdown(response.data.can_resend_in);
+
     showOTPAskingDialog.value = false;
     showOTPInputDialog.value = true;
   } catch (error: any) {
@@ -212,7 +256,7 @@ const generateOTP = async () => {
     toast.add({
       severity: 'error',
       summary: 'Không thể gửi mã xác thực. Vui lòng thử lại',
-      life: 3000,
+      life: 5000,
       group: 'tr'
     });
   } finally {
@@ -244,7 +288,7 @@ const handleOTPSubmit = async () => {
       toast.add({
         severity: 'success',
         summary: 'Số điện thoại đã được cập nhật',
-        life: 3000,
+        life: 5000,
         group: 'tr'
       });
     } else {
@@ -252,7 +296,7 @@ const handleOTPSubmit = async () => {
         severity: 'error',
         summary: 'Lỗi',
         detail: 'Mã xác thực đã hết hạn hoặc không hợp lệ',
-        life: 3000,
+        life: 5000,
         group: 'tr'
       });
     }
@@ -263,7 +307,7 @@ const handleOTPSubmit = async () => {
       severity: 'error',
       summary: 'Lỗi',
       detail: 'Đã có lỗi xảy ra. Vui lòng thử lại',
-      life: 3000,
+      life: 5000,
       group: 'tr'
     });
   } finally {
@@ -277,8 +321,21 @@ const resetFormAndCloseDialog = () => {
   showOTPAskingDialog.value = false;
   showOTPInputDialog.value = false;
   OTPValue.value = '';
+
+  // Clear countdown
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value);
+  }
+  timeLeft.value = 0;
+  canResendTime.value = null;
 };
 
+// Cleanup on component unmount
+onUnmounted(() => {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value);
+  }
+});
 </script>
 
 <style scoped></style>
