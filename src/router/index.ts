@@ -8,7 +8,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AccountLayout from '@/layouts/AccountLayout.vue'
 import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
-import AccountNotificationsView from '@/views/authenticated/AccountNotificationsView.vue'
+import AccountAddressesView from '@/views/authenticated/AccountAddressView.vue'
+import PurchaseOrdersView from '@/views/authenticated/AccountPurchaseOrdersView.vue'
 
 const routes = [
   {
@@ -47,9 +48,15 @@ const routes = [
             meta: { requiresAuth: true },
           },
           {
-            path: 'notifications',
-            name: 'account-notifications',
-            component: AccountNotificationsView,
+            path: 'address',
+            name: 'account-address',
+            component: AccountAddressesView,
+            meta: { requiresAuth: true },
+          },
+          {
+            path: 'orders/purchase',
+            name: 'account-orders-purchase',
+            component: PurchaseOrdersView,
             meta: { requiresAuth: true },
           },
         ],

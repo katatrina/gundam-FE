@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Account Notifications Page</h1>
+    <h1>Đơn Mua</h1>
   </div>
 </template>
 

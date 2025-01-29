@@ -1,10 +1,10 @@
 <template>
   <!-- Account pages layout -->
-  <div class="text-sm">
+  <div>
     <div class="container mx-auto">
       <div class="flex flex-row gap-4">
         <!-- Left Section - Navigation Sidebar -->
-        <section class="w-52 shrink-0 bg-white rounded-md shadow-sm p-4 self-start sticky top-6">
+        <section class="w-64 shrink-0 bg-white rounded-md shadow-sm p-4 self-start sticky top-6">
           <AccountLeftSideBar />
         </section>
 
@@ -18,5 +18,5 @@
 </template>
 
 <script setup lang="ts">
-import AccountLeftSideBar from '@/components/profile/AccountLeftSideBar.vue';
+import AccountLeftSideBar from '@/components/account/AccountLeftSideBar.vue';
 </script>

@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import PhoneField from '@/components/profile/PhoneNumberField.vue';
+import PhoneField from '@/components/account/PhoneNumberField.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/types/models';

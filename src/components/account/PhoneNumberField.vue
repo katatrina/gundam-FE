@@ -1,7 +1,7 @@
 <!-- PhoneField.vue -->
 <template>
   <label class="w-32 flex-shrink-0 text-right">Số điện thoại</label>
-  <div v-if="currentPhoneNumber" class="flex items-center gap-2">
+  <div v-if="currentPhoneNumber" class="flex items-center gap-2 text-sm">
     {{ maskPhoneNumber(currentPhoneNumber) }}
     <button type="button" class="text-blue-600 underline" @click="showUpdatePhoneNumberDialog = true">Thay Đổi</button>
   </div>

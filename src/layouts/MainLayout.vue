@@ -52,7 +52,7 @@
 
         <!-- Navigation Bar -->
         <nav class="mt-4">
-          <ul class="flex space-x-8 font-normal text-gray-500">
+          <ul class="flex space-x-8 font-normal text-gray-500 text-lg">
             <li v-for="link in links" :key="link.name">
               <RouterLink :to="link.path" class=" hover:text-emerald-500" activeClass="font-semibold text-emerald-500"
                 exactActiveClass="font-semibold text-emerald-500">{{ link.name }}</RouterLink>
