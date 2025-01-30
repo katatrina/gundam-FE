@@ -38,7 +38,7 @@
           <div class="h-[44px]">
             <div class="flex items-center gap-4">
               <div class="w-32"></div>
-              <Button type="submit" label="Lưu" class="w-20" :loading="isSubmitting" />
+              <Button type="submit" label="Lưu" class="w-20 -mt-3" :loading="isSubmitting" />
             </div>
           </div>
         </form>
@@ -208,7 +208,6 @@ const onUpdateUser = handleSubmit.withControlled(async () => {
 });
 
 const onPhoneUpdated = (newPhoneNumber: string) => {
-  console.log('Phone number updated:', newPhoneNumber);
   phoneNumber.value = newPhoneNumber; // Update parent state if necessary
 };
 
