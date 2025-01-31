@@ -11,6 +11,8 @@ import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 
+import { configure } from 'vee-validate'
+
 import App from '@/App.vue'
 import router from '@/router'
 import { verifyAccessToken } from '@/utils/auth'
@@ -45,6 +47,13 @@ const boot = async () => {
   if (access_token) {
     await verifyAccessToken(access_token)
   }
+
+  configure({
+    validateOnBlur: true,
+    validateOnChange: false,
+    validateOnInput: false,
+    validateOnModelUpdate: false,
+  })
 
   // Install router after auth check
   app.use(router)

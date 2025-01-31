@@ -8,7 +8,7 @@
           <div class="h-[44px]">
             <div class="flex items-center gap-4">
               <label class="w-32 flex-shrink-0 text-right" for="fullName">Tên</label>
-              <InputText type="text" v-model="fullName" size="small" id="fullName" class="w-3/5"
+              <InputText type="text" v-model="fullName" v-bind="fullNameAttrs" size="small" id="fullName" class="w-3/5"
                 :class="{ 'border-red-500': errors.fullName }"
                 :style="errors.fullName ? { backgroundColor: '#fffafa' } : {}" />
             </div>
@@ -130,7 +130,11 @@ const { defineField, handleSubmit, resetForm, isSubmitting, errors, values } = u
   validationSchema: toTypedSchema(mainFormValidationSchema)
 });
 
-const [fullName] = defineField('fullName');
+const [fullName, fullNameAttrs] = defineField('fullName', {
+  validateOnModelUpdate: true,
+  validateOnChange: true,
+  validateOnInput: true
+});
 
 // Create a separate form for file upload
 const { handleSubmit: handleFileSubmit } = useForm({
