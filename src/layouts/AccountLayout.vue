@@ -9,7 +9,7 @@
         </section>
 
         <!-- Right Section - Main Content -->
-        <section class="flex-1 min-h-[280px] bg-white rounded-md shadow-sm p-4">
+        <section class="flex-1 min-h-[280px] bg-white rounded-md shadow-sm p-4 mb-10">
           <RouterView />
         </section>
       </div>
