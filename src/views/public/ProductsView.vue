@@ -1,6 +1,6 @@
 <template>
   <div>
-    This is the CategoriesView
+    Danh sách gundam
   </div>
 </template>
 

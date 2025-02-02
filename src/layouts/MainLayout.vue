@@ -98,7 +98,7 @@ const q = ref('');
 const links = ref([
   { name: 'TRANG CHỦ', path: '/' },
   { name: 'CÁC CUỘC ĐẤU GIÁ', path: '/auctions' },
-  { name: 'TẤT CẢ THỂ LOẠI', path: '/categories' },
+  { name: 'TẤT CẢ THỂ LOẠI', path: '/products' },
   { name: 'TRAO ĐỔI GUNDAM', path: '/exchange' },
 ])
 

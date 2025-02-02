@@ -47,9 +47,9 @@ const toast = useToast();
 const { user } = storeToRefs(authStore);
 
 const menuItems = ref([
-  { label: "Profile", path: "/account/profile", icon: "pi pi-user" },
-  { label: "Notifications", path: "/account/notifications", icon: "pi pi-bell" },
-  { label: "Log Out", path: "/logout", icon: "pi pi-sign-out" },
+  { label: "Tài Khoản", path: "/account/profile", icon: "pi pi-user" },
+  { label: "Đơn Mua", path: "/account/orders/purchase", icon: "pi pi-clipboard" },
+  { label: "Đăng Xuất", path: "/logout", icon: "pi pi-sign-out" },
 ]);
 
 const currentRoute = useRoute();
@@ -65,7 +65,6 @@ const handleItemClick = (item: { label: string, path: string }) => {
     // Sleep for 500ms to show loading spinner
     setTimeout(() => {
       authStore.clearAuth();
-      console.log("Before logout: ", cookies.get(ACCESS_TOKEN_KEY));
 
       cookies.remove(ACCESS_TOKEN_KEY, {
         path: "/",
@@ -75,9 +74,6 @@ const handleItemClick = (item: { label: string, path: string }) => {
       if (currentRoute.meta.requiresAuth) {
         router.push("/login");
       }
-
-      console.log("After logout: ", cookies.get(ACCESS_TOKEN_KEY));
-
 
       toast.add({ severity: 'success', summary: 'Đăng xuất thành công', life: 3000, group: 'br' });
     }, 500);

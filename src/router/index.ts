@@ -1,6 +1,6 @@
 import MainLayout from '@/layouts/MainLayout.vue'
 import AuctionView from '@/views/public/AuctionView.vue'
-import CategoriesView from '@/views/public/CategoriesView.vue'
+import ProductsView from '@/views/public/ProductsView.vue'
 import ExchangeView from '@/views/public/ExchangeView.vue'
 import HomeView from '@/views/public/HomeView.vue'
 import LoginView from '@/views/authentication/LoginView.vue'
@@ -27,9 +27,9 @@ const routes = [
         component: AuctionView,
       },
       {
-        path: 'categories',
-        name: 'categories',
-        component: CategoriesView,
+        path: 'products',
+        name: 'products',
+        component: ProductsView,
       },
       {
         path: 'exchange',
