@@ -21,3 +21,25 @@ export interface UserAddress {
   detail: string
   is_primary: boolean
 }
+
+export interface GundamGrade {
+  id: number
+  name: string
+  display_name: string
+  slug: string
+}
+
+export interface Gundam {
+  id: number
+  owner_id: string
+  name: string
+  grade_id: number
+  condition: string
+  manufacturer: string
+  scale: string
+  description: string
+  price: number
+  status: string
+  created_at: string
+  updated_at: string
+}
