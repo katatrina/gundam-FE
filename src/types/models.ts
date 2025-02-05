@@ -39,7 +39,15 @@ export interface Gundam {
   scale: string
   description: string
   price: number
+  images: GundamImage[]
   status: string
   created_at: string
   updated_at: string
+}
+
+export interface GundamImage {
+  id: number
+  gundam_id: number
+  url: string
+  is_primary: boolean
 }
