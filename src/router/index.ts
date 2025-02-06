@@ -10,6 +10,7 @@ import AccountLayout from '@/layouts/AccountLayout.vue'
 import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
 import AccountAddressesView from '@/views/authenticated/AccountAddressView.vue'
 import PurchaseOrdersView from '@/views/authenticated/AccountPurchaseOrdersView.vue'
+import ProductDetailView from '@/views/public/ProductDetailView.vue'
 
 const routes = [
   {
@@ -30,6 +31,12 @@ const routes = [
         path: 'products',
         name: 'products',
         component: ProductsListView,
+      },
+      {
+        path: 'product/:slug',
+        name: 'product-detail',
+        component: ProductDetailView,
+        props: true,
       },
       {
         path: 'exchange',

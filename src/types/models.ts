@@ -33,6 +33,7 @@ export interface Gundam {
   id: number
   owner_id: string
   name: string
+  slug: string
   grade_id: number
   condition: string
   manufacturer: string
@@ -50,4 +51,9 @@ export interface GundamImage {
   gundam_id: number
   url: string
   is_primary: boolean
+}
+
+export interface GundamDetail extends Gundam {
+  grade: GundamGrade
+  owner: User
 }

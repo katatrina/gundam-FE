@@ -26,7 +26,8 @@
             <div v-for="gundam in gundams" :key="gundam.id" class="bg-white rounded-sm overflow-hidden cursor-pointer flex flex-col
              border border-transparent
              transform transition-all ease-in-out
-             hover:-translate-y-0.5 hover:shadow-xl hover:border-emerald-500">
+             hover:-translate-y-0.5 hover:shadow-xl hover:border-emerald-500"
+              @click="navigateToProductDetail(gundam.slug)">
               <img :src="getGundamPrimaryImage(gundam)" :alt="gundam.name" class="w-full h-48 object-cover" />
               <div class="p-4 flex flex-col flex-1">
                 <h3 class="text-medium font-medium mb-2 line-clamp-2 min-h-[3.5rem]">
@@ -98,6 +99,15 @@ const fetchGundamGrades = async () => {
   } catch (err) {
     console.error('Error fetching grades:', err)
   }
+}
+
+const navigateToProductDetail = (slug: string) => {
+  try {
+    router.push({ name: 'product-detail', params: { slug } })
+  } catch (error) {
+    console.log('Error navigating to product detail:', error);
+  }
+
 }
 
 const fetchGundams = async () => {
