@@ -29,13 +29,14 @@ export interface GundamGrade {
   slug: string
 }
 
+export type GundamCondition = 'mint' | 'near mint' | 'good' | 'moderate wear' | 'heavily damaged';
+
 export interface Gundam {
   id: number
   owner_id: string
   name: string
   slug: string
-  grade_id: number
-  condition: string
+  condition: GundamCondition
   manufacturer: string
   scale: string
   description: string
@@ -54,6 +55,6 @@ export interface GundamImage {
 }
 
 export interface GundamDetail extends Gundam {
-  grade: GundamGrade
+  gundam_grade: GundamGrade
   owner: User
 }

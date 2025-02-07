@@ -115,8 +115,7 @@ const fetchGundams = async () => {
     // Always use selectedGradeSlug for filtering
     const params = selectedGradeSlug.value ? { grade: selectedGradeSlug.value } : {}
     const response = await axios.get<{ data: Gundam[] }>('/gundams', { params })
-    console.log('API Response:', response.data)
-
+    
     // Check if response.data.gundams exists
     if (response.data) {
       gundams.value = response.data.data
