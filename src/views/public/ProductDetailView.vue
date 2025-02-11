@@ -1,6 +1,7 @@
 <template>
+  <!-- Product Detail View -->
   <div class="container mx-auto px-4">
-    <div class="bg-white shadow-lg p-4 md:p-6">
+    <div class="bg-white shadow-sm p-4 md:p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-6">
         <!-- Gallery Section - Left side -->
         <div
@@ -30,7 +31,7 @@
           <div class="space-y-2">
             <h1 class="text-2xl font-bold text-gray-900">{{ gundam.name }}</h1>
             <p class="text-2xl font-medium text-emerald-600">
-              {{ formatPrice(gundam?.price) }}
+              {{ formatPrice(gundam.price) }}
             </p>
           </div>
 
@@ -59,13 +60,11 @@
 
           <!-- Add to Cart and Buy Now Buttons -->
           <div class="flex space-x-4 w-full">
-            <Button type="button" @click="addToCart" class="w-[240px] px-4  border-gray-300 bg-transparent text-emerald-500
-           hover:border-emerald-500
-           outline outline-1 outline-transparent
-           hover:outline-emerald-500">
-              <i class="pi pi-shopping-cart" />
-              Thêm Vào Giỏ Hàng
-            </Button>
+            <button type="button" @click="addToCart" class="w-[240px] px-4  border-2  rounded-md bg-transparent text-emerald-500
+           hover:border-emerald-500" :disabled="disableAddToCart" :class="{ 'cursor-not-allowed': disableAddToCart }">
+              <i :class="disableAddToCart ? 'pi pi-check' : 'pi pi-shopping-cart'"></i>
+              {{ disableAddToCart ? 'Đã Thêm Vào Giỏ Hàng' : 'Thêm Vào Giỏ Hàng' }}
+            </button>
             <Button type="button" @click="onBuyNow" class="w-[240px] px-4">
               <i class="pi pi-credit-card" />
               Mua Ngay
@@ -75,16 +74,68 @@
       </div>
     </div>
   </div>
+
+  <!-- Seller Info -->
+  <div class="container mx-auto px-4 mt-4">
+    <div class="bg-white shadow p-6">
+      <!-- Shop Header and Metrics Container -->
+      <div class="flex">
+        <!-- Left Section: Avatar and Shop Info -->
+        <div class="flex items-start gap-4">
+          <!-- Shop Avatar -->
+          <img :src="seller?.avatar_url ?? undefined" :alt="seller?.full_name"
+            class="w-[88px] h-[88px] object-cover rounded-full" />
+
+          <!-- Shop Info - Set height to match avatar -->
+          <div class="h-[88px] flex flex-col justify-between">
+            <!-- Shop Name -->
+            <h2 class="text-lg">{{ seller?.full_name }}</h2>
+
+            <!-- Online Status -->
+            <span class="text-gray-500 text-sm -mt-2">Online 69 Phút Trước</span>
+
+            <!-- Chat Button - More compact -->
+            <Button type="button" severity="success" variant="outlined" class="px-6 w-fit rounded-sm" size="small"
+              icon="pi pi-comments" label="Chat Ngay" />
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <Divider layout="vertical" />
+
+        <!-- Metrics Layout -->
+        <div class="flex-1 flex items-center">
+          <div class="max-w-md">
+            <div class="flex flex-col space-y-4">
+              <div class="flex items-baseline justify-between gap-4">
+                <label class="text-gray-500 text-sm font-medium w-24 text-left">Đánh Giá</label>
+                <span class="text-emerald-600 text-sm w-32 text-right">69%</span>
+              </div>
+              <div class="flex items-baseline justify-between gap-4">
+                <label class="text-gray-500 text-sm font-medium w-24 text-left">Tham Gia</label>
+                <span class="text-emerald-600 text-sm w-32 text-right">{{ sellerJoinedAt }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import axios from '@/config/axios'
-import type { GundamDetail } from '@/types/models'
-import { formatPrice } from '@/utils/common'
 import { GUNDAM_CONDITION_MAPPING } from '@/constants/gundam'
-import { Button, Galleria, Divider } from 'primevue'
+import type { CartItem, Gundam, User } from '@/types/models'
+import { formatPrice } from '@/utils/common'
+import { formatDistanceToNow } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { Button, Divider, Galleria } from 'primevue'
+import { useToast } from 'primevue'
 import { computed, onMounted, ref } from 'vue'
-import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter, useRoute } from 'vue-router'
+import { useCartStore } from '@/stores/cart';
 
 const props = defineProps({
   slug: {
@@ -93,18 +144,42 @@ const props = defineProps({
   }
 })
 
+const authStore = useAuthStore()
+const cartStore = useCartStore()
+const router = useRouter()
+const route = useRoute()
+const toast = useToast();
 
 // State
-const gundam = ref<GundamDetail>({} as GundamDetail)
-const loading = ref(false)
+const gundam = ref<Gundam>({} as Gundam)
+const seller = ref<User>({} as User)
+const sellerJoinedAt = computed(() => {
+  try {
+    if (!seller.value?.created_at) return ''
+
+    // Ensure we have a valid date string before parsing
+    const date = new Date(seller.value.created_at)
+    if (isNaN(date.getTime())) return ''
+
+    return formatDistanceToNow(date, {
+      locale: vi,
+      addSuffix: true
+    })
+  } catch (error) {
+    console.error('Error formatting seller join date:', error)
+    return ''
+  }
+})
 const images = ref<Array<{ itemImageSrc: string, thumbnailImageSrc: string, alt: string }>>([])
 const activeIndex = ref(0)
 const thumbnailPosition = ref<'bottom' | 'top' | 'left' | 'right'>('left')
+// disableAddToCart computed property to disable add to cart button if this gundam is already in cart
+const disableAddToCart = computed(() => cartStore.isInCart(gundam.value.id))
 
 const basicInfo = computed(() => [
   {
     label: 'Loại',
-    value: gundam.value.gundam_grade?.display_name
+    value: gundam.value.grade
   },
   {
     label: 'Tỷ Lệ',
@@ -147,54 +222,66 @@ const onThumbnailHover = (_event: MouseEvent, slotProps: any) => {
 // Methods
 const fetchGundamDetail = async () => {
   try {
-    loading.value = true
-    const response = await axios.get<GundamDetail>(`/gundams/${props.slug}`)
-    gundam.value = response.data
-    console.log('Gundam:', gundam.value);
 
-    images.value = gundam.value.images.map(img => ({
-      itemImageSrc: img.url,
-      thumbnailImageSrc: img.url,
-      alt: gundam.value?.name || 'Gundam image'
-    }))
+    const response = await axios.get<Gundam>(`/gundams/${props.slug}`)
+    gundam.value = response.data
+
+    // Only proceed with images if gundam.value.images exists
+    if (gundam.value.image_urls) {
+      images.value = gundam.value.image_urls.map((val: string) => ({
+        itemImageSrc: val,
+        thumbnailImageSrc: val,
+        alt: gundam.value?.name || 'Gundam image'
+      }))
+    } else {
+      console.warn('No images found in gundam data');
+    }
   } catch (error) {
     console.error('Error fetching gundam details:', error)
-  } finally {
-    loading.value = false
+  }
+}
+
+const fetchSellerDetails = async () => {
+  try {
+    const response = await axios.get<User>(`/sellers/${gundam.value.owner_id}`)
+    seller.value = response.data
+  } catch (error) {
+    console.error('Error fetching seller details:', error)
   }
 }
 
 const addToCart = async () => {
-  if (!gundam.value) return
+  if (!authStore.isAuthenticated) {
+    // Redirect to login page if user is not authenticated
+    return router.push({ name: 'login', query: { redirect: route.fullPath } })
+  }
 
   try {
-    loading.value = true
-    await axios.post('/cart/add', {
+    const response = await axios.post<CartItem>('/cart/items', {
       gundam_id: gundam.value.id
     })
+    cartStore.addToCart(response.data)
+    toast.add({
+      severity: 'success',
+      summary: 'Sản phẩm đã được thêm vào Giỏ Hàng',
+      life: 3000,
+      group: 'tc'
+    })
+
+    console.log('Added to cart:', response.data)
   } catch (error) {
     console.error('Error adding to cart:', error)
-  } finally {
-    loading.value = false
   }
 }
 
 const onBuyNow = async () => {
-  if (!gundam.value) return
-
-  try {
-    loading.value = true
-    await axios.post('/cart/add', {
-      gundam_id: gundam.value.id
-    })
-    // Redirect to cart page
-    router.push('/cart')
-  } catch (error) {
-    console.error('Error adding to cart:', error)
-  } finally {
-    loading.value = false
-  }
+  // Implement buy now functionality
 }
 
-onMounted(fetchGundamDetail)
+onMounted(async () => {
+  await fetchGundamDetail()
+
+  // Fetch seller details
+  await fetchSellerDetails()
+});
 </script>

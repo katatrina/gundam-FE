@@ -61,7 +61,7 @@ const navigateTo = (path: any) => {
 
 // Handle item click (including logout)
 const handleItemClick = (item: { label: string, path: string }) => {
-  if (item.label === "Log Out") {
+  if (item.label === "Đăng Xuất") {
     // Sleep for 500ms to show loading spinner
     setTimeout(() => {
       authStore.clearAuth();

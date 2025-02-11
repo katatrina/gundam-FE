@@ -29,32 +29,32 @@ export interface GundamGrade {
   slug: string
 }
 
-export type GundamCondition = 'mint' | 'near mint' | 'good' | 'moderate wear' | 'heavily damaged';
+export type GundamCondition = 'mint' | 'near mint' | 'good' | 'moderate wear' | 'heavily damaged'
 
 export interface Gundam {
   id: number
   owner_id: string
   name: string
   slug: string
+  grade: string
   condition: GundamCondition
   manufacturer: string
   scale: string
   description: string
   price: number
-  images: GundamImage[]
+  image_urls: string[]
   status: string
   created_at: string
   updated_at: string
 }
 
-export interface GundamImage {
-  id: number
+export interface CartItem {
+  cart_item_id: string
   gundam_id: number
-  url: string
-  is_primary: boolean
-}
-
-export interface GundamDetail extends Gundam {
-  gundam_grade: GundamGrade
-  owner: User
+  gundam_name: string
+  gundam_price: number
+  gundam_image_url: string
+  seller_id: string
+  seller_name: string
+  seller_avatar_url: string
 }

@@ -28,7 +28,7 @@
              transform transition-all ease-in-out
              hover:-translate-y-0.5 hover:shadow-xl hover:border-emerald-500"
               @click="navigateToProductDetail(gundam.slug)">
-              <img :src="getGundamPrimaryImage(gundam)" :alt="gundam.name" class="w-full h-48 object-cover" />
+              <img :src="gundam.image_urls[0]" :alt="gundam.name" class="w-full h-48 object-cover" />
               <div class="p-4 flex flex-col flex-1">
                 <h3 class="text-medium font-medium mb-2 line-clamp-2 min-h-[3.5rem]">
                   {{ gundam.name }}
@@ -48,8 +48,8 @@
 <script setup lang="ts">
 import axios from '@/config/axios'
 import type { Gundam, GundamGrade } from '@/types/models'
-import { getGundamPrimaryImage } from '@/utils/image'
 import { formatPrice } from '@/utils/common'
+// import { getGundamPrimaryImage } from '@/utils/image'
 import { Divider, RadioButton } from 'primevue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -107,18 +107,18 @@ const navigateToProductDetail = (slug: string) => {
   } catch (error) {
     console.log('Error navigating to product detail:', error);
   }
-
 }
 
 const fetchGundams = async () => {
   try {
     // Always use selectedGradeSlug for filtering
     const params = selectedGradeSlug.value ? { grade: selectedGradeSlug.value } : {}
-    const response = await axios.get<{ data: Gundam[] }>('/gundams', { params })
-    
+    const response = await axios.get<Gundam[]>('/gundams', { params })
+    console.log('response', response.data);
+
     // Check if response.data.gundams exists
     if (response.data) {
-      gundams.value = response.data.data
+      gundams.value = response.data
     } else {
       console.error('Unexpected API response structure:', response.data)
     }

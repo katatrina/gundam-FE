@@ -24,6 +24,7 @@ export async function verifyAccessToken(access_token: string) {
   } catch {
     cookies.remove(ACCESS_TOKEN_KEY)
     authStore.clearAuth()
+    return false
   } finally {
     authStore.setLoadingAuth(false)
   }
