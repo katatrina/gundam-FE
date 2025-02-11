@@ -65,7 +65,7 @@
     <Divider layout="horizontal" type="solid" class="mt-0" />
 
     <!--  Main Content -->
-    <main class="max-w-7xl mx-auto">
+    <main class="max-w-7xl mx-auto mb-5">
       <RouterView />
     </main>
   </div>
