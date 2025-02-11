@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto flex justify-center">
+  <div class="flex justify-center">
     <div class="flex flex-row gap-2 w-full max-w-5xl">
       <!-- General Information: 3/5 width -->
       <div class="w-3/5">

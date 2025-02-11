@@ -1,7 +1,7 @@
 <template>
   <!-- Account pages layout -->
   <div>
-    <div class="container mx-auto">
+    <div class="">
       <div class="flex flex-row gap-4">
         <!-- Left Section - Navigation Sidebar -->
         <section class="w-64 shrink-0 bg-white rounded-md shadow-sm p-4 self-start sticky top-6">

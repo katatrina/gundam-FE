@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container mx-auto">
+    <div class="">
       <div class="flex flex-col md:flex-row gap-6">
         <!-- Left Section - Filter Side Bar -->
         <div class="w-full md:w-1/4">

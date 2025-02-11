@@ -1,7 +1,8 @@
+<!-- @/views/public/ProductDetailView.vue -->
 <template>
   <!-- Product Detail View -->
-  <div class="container mx-auto px-4">
-    <div class="bg-white shadow-sm p-4 md:p-6">
+  <div class="">
+    <div class="bg-white shadow-sm md:p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-6">
         <!-- Gallery Section - Left side -->
         <div
@@ -9,11 +10,11 @@
           <Galleria v-model:activeIndex="activeIndex" :value="images" :responsiveOptions="responsiveOptions"
             :numVisible="images.length" :showThumbnailNavigators="false" :showIndicators="false"
             :thumbnailsPosition="thumbnailPosition" class="max-h-[300px] md:max-h-[450px]"
-            :verticalThumbnailViewPortHeight="'450px'">
+            style="min-height: 300px; max-height: 450px;" :verticalThumbnailViewPortHeight="'450px'">
             <template #item="slotProps">
               <div class="h-full flex items-center justify-center">
                 <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt"
-                  class="max-h-full max-w-full object-contain" />
+                  class="max-h-full max-w-full object-contain" width="450" height="450" />
               </div>
             </template>
             <template #thumbnail="slotProps">
@@ -76,7 +77,7 @@
   </div>
 
   <!-- Seller Info -->
-  <div class="container mx-auto px-4 mt-4">
+  <div class="container mx-auto mt-4">
     <div class="bg-white shadow p-6">
       <!-- Shop Header and Metrics Container -->
       <div class="flex">
@@ -84,7 +85,7 @@
         <div class="flex items-start gap-4">
           <!-- Shop Avatar -->
           <img :src="seller?.avatar_url ?? undefined" :alt="seller?.full_name"
-            class="w-[88px] h-[88px] object-cover rounded-full" />
+            class="w-[88px] h-[88px] object-cover rounded-full" width="88" height="88" />
 
           <!-- Shop Info - Set height to match avatar -->
           <div class="h-[88px] flex flex-col justify-between">

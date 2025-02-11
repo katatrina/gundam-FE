@@ -5,7 +5,8 @@
     pt: {
       root: ['text-sm']
     }
-  }" class="cursor-pointer rounded-full relative hover:bg-gray-300 w-12 h-12 flex items-center justify-center">
+  }" class="cursor-pointer rounded-full relative hover:bg-gray-300 w-12 h-12 flex items-center justify-center"
+    @click="() => $router.push('/cart')">
 
     <OverlayBadge v-if="cartStore.cartItemsCount" :value="cartStore.cartItemsCount" severity="danger" size="small">
       <i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>

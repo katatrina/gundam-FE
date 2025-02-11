@@ -11,6 +11,7 @@ import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
 import AccountAddressesView from '@/views/authenticated/AccountAddressView.vue'
 import PurchaseOrdersView from '@/views/authenticated/AccountPurchaseOrdersView.vue'
 import ProductDetailView from '@/views/public/ProductDetailView.vue'
+import CartView from '@/views/authenticated/CartView.vue'
 
 const routes = [
   {
@@ -42,6 +43,12 @@ const routes = [
         path: 'exchange',
         name: 'exchange',
         component: ExchangeView,
+      },
+      {
+        path: 'cart',
+        name: 'cart',
+        component: CartView,
+        meta: { requiresAuth: true },
       },
       {
         path: 'account',
