@@ -3,16 +3,16 @@
   <div class="">
     <div v-if="cartItemsCount" class="space-y-4">
       <!-- Header Section -->
-      <div class="bg-white shadow-sm max-w-4xl mx-auto p-6 rounded-sm">
+      <div class="bg-white shadow-sm max-w-4xl mx-auto p-6 rounded-sm py-3">
         <div class="grid grid-cols-12 gap-4 items-center">
           <div class="col-span-1 w-16">
             <!-- Top level select all (Header) -->
             <Checkbox v-model="selectAll" binary @update:modelValue="toggleSelectAll"
               class="flex items-center justify-center" />
           </div>
-          <div class="col-span-5 text-gray-700 font-medium">Sản Phẩm</div>
-          <div class="col-span-3 text-center text-gray-700 font-medium">Số Tiền</div>
-          <div class="col-span-3 text-center text-gray-700 font-medium">Thao Tác</div>
+          <div class="col-span-5 font-medium">Sản Phẩm</div>
+          <div class="col-span-3 text-center text-gray-500 font-medium">Số Tiền</div>
+          <div class="col-span-3 text-center text-gray-500 font-medium">Thao Tác</div>
         </div>
       </div>
 
@@ -28,7 +28,7 @@
               class="flex items-center justify-center" />
           </div>
           <div class="col-span-11 flex items-center space-x-3">
-            <i class="pi pi-shop text-gray-600"></i>
+            <i class="pi pi-shop"></i>
             <span class="font-medium text-gray-800">{{ items[0].seller_name }}</span>
           </div>
         </div>
@@ -114,11 +114,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { useCartStore } from '@/stores/cart';
-import { formatPrice } from '@/utils/common';
 import axios from '@/config/axios';
+import { useCartStore } from '@/stores/cart';
+import type { CartItem } from '@/types/models';
+import { formatPrice } from '@/utils/common';
 import Checkbox from 'primevue/checkbox';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const cartStore = useCartStore();
 
@@ -253,4 +254,20 @@ const removeSelectedItems = async () => {
     console.error("Lỗi khi xóa các sản phẩm đã chọn:", error);
   }
 };
+
+// Fetch cart items on mount
+onMounted(async () => {
+  try {
+    const response = await axios.get<CartItem[]>('/cart/items');
+    // Update store with fetched data
+    cartStore.$patch({
+      cartItems: response.data,
+    });
+  } catch (error) {
+    console.error("Lỗi khi tải giỏ hàng:", error);
+    cartStore.$patch({
+      cartItems: [],
+    });
+  }
+});
 </script>

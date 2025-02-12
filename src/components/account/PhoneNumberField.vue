@@ -201,16 +201,14 @@ const proceedToStep2 = handleSubmit(async () => {
     await axios.get(`/users/by-phone?phone_number=${newPhoneNumber.value}`);
     // If we get here, it means the phone number exists
     setFieldError('newPhoneNumber', 'Số điện thoại đã tồn tại');
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 404) {
-        // Phone number doesn't exist - this is what we want
-        showUpdatePhoneNumberDialog.value = false;
-        showOTPAskingDialog.value = true;
-        return;
-      }
-
-      // For other errors, show toast
+  } catch (error: any) {
+    if (error.response.status === 404) {
+      // Phone number doesn't exist - this is what we want
+      showUpdatePhoneNumberDialog.value = false;
+      showOTPAskingDialog.value = true;
+      return;
+    } else {
+      console.error('Error checking phone number:', error);
       toast.add({
         severity: 'error',
         summary: 'Lỗi',
