@@ -6,8 +6,8 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <FloatLabel variant="on">
-            <InputText id="receiver_name" v-model="fullName" v-bind="fullNameAttrs" class="w-full rounded-sm" />
-            <label for="receiver_name">Họ và tên</label>
+            <InputText id="full_name" v-model="fullName" v-bind="fullNameAttrs" class="w-full rounded-sm" />
+            <label for="full_name">Họ và tên</label>
           </FloatLabel>
           <div v-show="errors.fullName" class="h-5 text-sm text-red-500 pl-1 pt-0.5">
             <p>{{ errors.fullName }}</p>
@@ -16,9 +16,8 @@
 
         <div>
           <FloatLabel variant="on">
-            <InputText id="receiver_phone_number" v-model="phoneNumber" v-bind="phoneNumberAttrs"
-              class="w-full rounded-sm" />
-            <label for="receiver_phone_number">Số điện thoại</label>
+            <InputText id="phone_number" v-model="phoneNumber" v-bind="phoneNumberAttrs" class="w-full rounded-sm" />
+            <label for="phone_number">Số điện thoại</label>
           </FloatLabel>
           <div v-show="errors.phoneNumber" class="h-5 text-sm text-red-500 pl-1 pt-0.5">
             <p>{{ errors.phoneNumber }}</p>
@@ -307,13 +306,16 @@ const onSubmit = handleSubmit(async (values) => {
 
     // Construct the submission data
     const submissionData: AddressRequest = {
-      receiver_name: values.fullName,
-      receiver_phone_number: values.phoneNumber,
+      full_name: values.fullName,
+      phone_number: values.phoneNumber,
       province_name: selectedProvince?.ProvinceName || '',
       district_name: selectedDistrict?.DistrictName || '',
+      ghn_district_id: selectedDistrict?.DistrictID || 0,
       ward_name: selectedWard?.WardName || '',
+      ghn_ward_code: selectedWard?.WardCode || '',
       detail: values.addressDetail,
-      is_primary: isPrimaryAddress.value
+      is_primary: isPrimaryAddress.value,
+      is_pickup_address: false
     };
 
     // Parent component will handle the submission and close the dialog

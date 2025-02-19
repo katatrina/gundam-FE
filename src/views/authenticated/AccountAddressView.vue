@@ -19,13 +19,16 @@
       <div class="flex justify-between items-start">
         <div class="space-y-1">
           <div class="flex items-center">
-            <p class="font-semibold">{{ address.receiver_name }}</p>
+            <p class="font-semibold">{{ address.full_name }}</p>
             <Divider layout="vertical" class="mx-2 h-6" />
-            <p class="text-gray-600">{{ address.receiver_phone_number }}</p>
+            <p class="text-gray-600">{{ address.phone_number }}</p>
           </div>
           <p class="text-gray-600">{{ address.detail }}</p>
           <p class="text-gray-600">{{ formatLocation(address) }}</p>
-          <Tag v-if="address.is_primary" value="Mặc định" severity="info" />
+          <div class="flex gap-x-2">
+            <Tag v-if="address.is_primary" value="Mặc định" severity="info" />
+            <Tag v-if="address.is_pickup_address" value="Địa chỉ lấy hàng" severity="warn" />
+          </div>
         </div>
 
         <div class="flex flex-col items-end gap-y-2">

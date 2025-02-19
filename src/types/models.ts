@@ -13,13 +13,16 @@ export interface User {
 export interface UserAddress {
   id: number
   user_id: string
-  receiver_name: string
-  receiver_phone_number: string
+  full_name: string
+  phone_number: string
   province_name: string
   district_name: string
+  ghn_district_id: number
   ward_name: string
+  ghn_ward_code: string
   detail: string
   is_primary: boolean
+  is_pickup_address: boolean
 }
 
 export interface GundamGrade {
@@ -29,7 +32,7 @@ export interface GundamGrade {
   slug: string
 }
 
-export type GundamCondition = 'mint' | 'near mint' | 'good' | 'moderate wear' | 'heavily damaged'
+export type GundamCondition = 'new' | 'open box' | 'second hand'
 
 export interface Gundam {
   id: number
