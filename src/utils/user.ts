@@ -9,4 +9,8 @@ const formatLocation = (address: UserAddress): string => {
   return `${address.ward_name}, ${address.district_name}, ${address.province_name}`
 }
 
-export { maskPhoneNumber, formatLocation }
+const formatFullLocation = (address: UserAddress): string => {
+  return `${address.detail}, ${address.ward_name}, ${address.district_name}, ${address.province_name}`
+}
+
+export { maskPhoneNumber, formatLocation, formatFullLocation }

@@ -30,7 +30,6 @@ const fetchCartItems = async () => {
   try {
     const response = await axios.get<CartItem[]>("/cart/items");
     cartStore.cartItems = response.data; // Cập nhật cartStore sau khi API thành công
-    console.log("Giỏ hàng:", cartStore.cartItems);
   } catch (error) {
     console.error("Lỗi khi tải giỏ hàng:", error);
   }

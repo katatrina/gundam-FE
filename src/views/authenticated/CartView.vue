@@ -214,8 +214,7 @@ watch(cartItems, (newItems) => {
 
 const removeFromCart = async (cart_item_id: string) => {
   try {
-    const response = await axios.delete(`/cart/items/${cart_item_id}`);
-    console.log("Đã xóa sản phẩm khỏi giỏ hàng:", response.data);
+    await axios.delete(`/cart/items/${cart_item_id}`);
     cartStore.removeFromCart(cart_item_id);
     // Remove the item from selected items if it was selected
     delete selectedItems.value[cart_item_id];
@@ -236,11 +235,9 @@ const removeSelectedItems = async () => {
     if (selectedItemIds.length === 0) return;
 
     // Call API to delete all selected items
-    const response = await axios.delete('/cart/items/batch', {
+    await axios.delete('/cart/items/batch', {
       data: { itemIds: selectedItemIds }
     });
-
-    console.log("Đã xóa các sản phẩm đã chọn:", response.data);
 
     // Remove items from cart store
     selectedItemIds.forEach(id => {

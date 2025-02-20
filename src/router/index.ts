@@ -12,6 +12,7 @@ import AccountAddressesView from '@/views/authenticated/AccountAddressView.vue'
 import PurchaseOrdersView from '@/views/authenticated/AccountPurchaseOrdersView.vue'
 import ProductDetailView from '@/views/public/ProductDetailView.vue'
 import CartView from '@/views/authenticated/CartView.vue'
+import CheckoutView from '@/views/authenticated/CheckoutView.vue'
 
 const routes = [
   {
@@ -48,6 +49,12 @@ const routes = [
         path: 'cart',
         name: 'cart',
         component: CartView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/checkout',
+        name: 'checkout',
+        component: CheckoutView,
         meta: { requiresAuth: true },
       },
       {
