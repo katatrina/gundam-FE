@@ -79,7 +79,7 @@
         <div class="flex items-center min-w-fit"
           :class="{ 'opacity-50': props.forcePrimaryAddress, 'cursor-not-allowed': props.forcePrimaryAddress, 'cursor-pointer': !props.forcePrimaryAddress }"
           v-tooltip.top="props.forcePrimaryAddress ? {
-            value: 'Bạn không thể xoá nhãn Địa chỉ mặc định...',
+            value: 'Bạn không thể xoá nhãn Địa chỉ mặc định. Hãy đặt địa chỉ khác làm Địa chỉ mặc định của bạn nhé.',
             pt: {
               root: {
                 style: { 'max-width': '170px', 'font-size': '0.875rem' }
@@ -324,7 +324,7 @@ const closeDialog = () => {
   resetForm();
   districts.value = [];
   wards.value = [];
-  localIsPrimaryAddress.value = false;
+  localIsPrimaryAddress.value = isPrimaryAddress.value;
 };
 
 const emit = defineEmits<{
