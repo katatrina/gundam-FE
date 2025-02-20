@@ -75,9 +75,24 @@
         </div>
       </div>
 
-      <div class="flex items-center">
-        <Checkbox v-model="isPrimaryAddress" inputId="primaryAddress" class="mr-2" binary />
-        <label for="primaryAddress" class="text-gray-700 cursor-pointer select-none">Đặt làm mặc định</label>
+      <div class="w-fit">
+        <div class="flex items-center min-w-fit"
+          :class="{ 'opacity-50': props.forcePrimaryAddress, 'cursor-not-allowed': props.forcePrimaryAddress, 'cursor-pointer': !props.forcePrimaryAddress }"
+          v-tooltip.top="props.forcePrimaryAddress ? {
+            value: 'Bạn không thể xoá nhãn Địa chỉ mặc định...',
+            pt: {
+              root: {
+                style: { 'max-width': '170px', 'font-size': '0.875rem' }
+              }
+            },
+          } : undefined">
+          <Checkbox v-model="localIsPrimaryAddress" inputId="primaryAddress" binary
+            :disabled="props.forcePrimaryAddress" class="w-6" />
+          <label for="primaryAddress" class="text-gray-700 select-none whitespace-nowrap"
+            :class="{ 'cursor-not-allowed': props.forcePrimaryAddress, 'cursor-pointer': !props.forcePrimaryAddress }">
+            Đặt làm mặc định
+          </label>
+        </div>
       </div>
 
       <div class="flex justify-end gap-3">
@@ -94,7 +109,7 @@ import { toTypedSchema } from '@vee-validate/yup';
 import axios from 'axios';
 import { Button, Checkbox, Dialog, FloatLabel, InputText, Select, Textarea } from 'primevue';
 import { useForm } from 'vee-validate';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import * as yup from 'yup';
 
 // Constants remain the same
@@ -153,12 +168,32 @@ const [ward, wardAttrs] = defineField('ward', {
   validateOnBlur: false,
 });
 
+// Props definition
+interface Props {
+  forcePrimaryAddress?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  forcePrimaryAddress: false
+})
+
 // Refs for data
 const showDialog = ref(false);
 const provinces = ref<Province[]>([]);
 const districts = ref<District[]>([]);
 const wards = ref<Ward[]>([]);
-const isPrimaryAddress = ref(false);
+// Add a local ref for the checkbox state
+const localIsPrimaryAddress = ref(props.forcePrimaryAddress);
+
+// Create a computed property that depends on both the local state and props
+const isPrimaryAddress = computed({
+  get: () => props.forcePrimaryAddress || localIsPrimaryAddress.value,
+  set: (value) => {
+    if (!props.forcePrimaryAddress) {
+      localIsPrimaryAddress.value = value;
+    }
+  }
+});
 
 const loadingProvinces = ref(false);
 const loadingDistricts = ref(false);
@@ -289,7 +324,7 @@ const closeDialog = () => {
   resetForm();
   districts.value = [];
   wards.value = [];
-  isPrimaryAddress.value = false;
+  localIsPrimaryAddress.value = false;
 };
 
 const emit = defineEmits<{

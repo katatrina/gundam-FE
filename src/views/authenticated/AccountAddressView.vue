@@ -6,10 +6,11 @@
     </div>
 
     <Button label="Thêm Địa Chỉ Mới" icon="pi pi-plus" class="px-3 py-1.5 rounded-sm text-sm"
-      @click="addNewAddressDialogRef?.openDialog()" />
+      @click="() => addNewAddressDialogRef?.openDialog()" />
   </div>
 
-  <AddNewAddressDialog ref="addNewAddressDialogRef" @createNewAddress="handleCreateNewAddress" />
+  <AddNewAddressDialog ref="addNewAddressDialogRef" :forcePrimaryAddress="shouldForcePrimaryAddress"
+    @createNewAddress="handleCreateNewAddress" />
 
   <Divider />
 
@@ -41,7 +42,8 @@
             </button>
           </div>
 
-          <Button label="Thiết lập mặc định" severity="secondary" class="rounded-sm" size="small" raised />
+          <Button label="Thiết lập mặc định" severity="secondary" class="rounded-sm" size="small" raised
+            :disabled="address.is_primary" />
         </div>
       </div>
 
@@ -64,11 +66,12 @@ import type { AddressRequest } from '@/types/request';
 import { formatLocation } from '@/utils/user';
 import { Button, Divider, Tag } from 'primevue';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const addresses = ref<UserAddress[]>([]);
 const loadingAddresses = ref(false);
 const addNewAddressDialogRef = ref();
+const shouldForcePrimaryAddress = computed(() => addresses.value.length === 0);
 
 const toast = useToast();
 const authStore = useAuthStore();

@@ -26,7 +26,8 @@
           </button>
         </div>
 
-        <AddNewAddressDialog ref="addNewAddressDialogRef" @createNewAddress="handleCreateNewAddress" />
+        <AddNewAddressDialog ref="addNewAddressDialogRef" :forcePrimaryAddress="shouldForcePrimaryAddress"
+          @createNewAddress="handleCreateNewAddress" />
         <ListAddressesDialog ref="listAddressesDialogRef" @changeAddress="handleChangeAddress"
           :selectedAddress="selectedAddress" />
 
@@ -64,7 +65,7 @@ import type { AddressRequest } from '@/types/request';
 import { formatFullLocation } from '@/utils/user';
 import { Tag } from 'primevue';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const authStore = useAuthStore();
 const toast = useToast();
@@ -74,13 +75,14 @@ const userAddresses = ref<UserAddress[]>([]);
 const selectedAddress = ref<UserAddress | null>(null);
 const addNewAddressDialogRef = ref();
 const listAddressesDialogRef = ref();
+const shouldForcePrimaryAddress = computed(() => userAddresses.value.length === 0)
 
 const handleCreateNewAddress = async (data: AddressRequest) => {
   try {
     await axios.post(`/users/${authStore.user?.id}/addresses`, data);
     addNewAddressDialogRef?.value.closeDialog();
-    toast.add({ severity: 'success', summary: 'Đã thêm địa chỉ mới', group: 'tc', life: 3000 });
     fetchUserAddresses()
+    toast.add({ severity: 'success', summary: 'Đã thêm địa chỉ mới', group: 'tc', life: 3000 });
   } catch (err: any) {
     console.log("Error creating address", err);
   }
