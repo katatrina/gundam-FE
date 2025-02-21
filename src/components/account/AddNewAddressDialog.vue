@@ -86,8 +86,8 @@
               }
             },
           } : undefined">
-          <Checkbox v-model="localIsPrimaryAddress" inputId="primaryAddress" binary
-            :disabled="props.forcePrimaryAddress" class="w-6" />
+          <Checkbox v-model="isPrimaryAddress" inputId="primaryAddress" binary :disabled="props.forcePrimaryAddress"
+            class="w-6" />
           <label for="primaryAddress" class="text-gray-700 select-none whitespace-nowrap"
             :class="{ 'cursor-not-allowed': props.forcePrimaryAddress, 'cursor-pointer': !props.forcePrimaryAddress }">
             Đặt làm mặc định
@@ -182,15 +182,13 @@ const showDialog = ref(false);
 const provinces = ref<Province[]>([]);
 const districts = ref<District[]>([]);
 const wards = ref<Ward[]>([]);
-// Add a local ref for the checkbox state
-const localIsPrimaryAddress = ref(props.forcePrimaryAddress);
+const localIsPrimaryAddress = ref(false);
 
-// Create a computed property that depends on both the local state and props
 const isPrimaryAddress = computed({
-  get: () => props.forcePrimaryAddress || localIsPrimaryAddress.value,
-  set: (value) => {
+  get: () => localIsPrimaryAddress.value,
+  set: (newValue) => {
     if (!props.forcePrimaryAddress) {
-      localIsPrimaryAddress.value = value;
+      localIsPrimaryAddress.value = newValue;
     }
   }
 });
@@ -317,6 +315,11 @@ const fetchWards = async (districtId: number) => {
 // Dialog handlers
 const openDialog = () => {
   showDialog.value = true;
+  // Nếu forcePrimaryAddress = true, có nghĩa là:
+  // 1. Đây là địa chỉ mặc định hiện tại (không thể bỏ chọn)
+  // 2. Hoặc người dùng chưa có địa chỉ nào (cần tự động chọn làm mặc định)
+  // => Trong cả hai trường hợp, chúng ta đều muốn checkbox được tích
+  localIsPrimaryAddress.value = props.forcePrimaryAddress;
 };
 
 const closeDialog = () => {
@@ -324,7 +327,7 @@ const closeDialog = () => {
   resetForm();
   districts.value = [];
   wards.value = [];
-  localIsPrimaryAddress.value = isPrimaryAddress.value;
+  localIsPrimaryAddress.value = false;
 };
 
 const emit = defineEmits<{
@@ -348,7 +351,7 @@ const onSubmit = handleSubmit(async (values) => {
       ward_name: selectedWard?.WardName || '',
       ghn_ward_code: selectedWard?.WardCode || '',
       detail: values.addressDetail,
-      is_primary: isPrimaryAddress.value,
+      is_primary: localIsPrimaryAddress.value,
       is_pickup_address: false
     };
 

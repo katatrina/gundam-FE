@@ -37,13 +37,13 @@
             <button class="rounded-md px-3 py-1.5 text-blue-600 hover:text-blue-800 bg-transparent">
               Cập Nhật
             </button>
-            <button class="rounded-md px-3 py-1.5 text-red-600 hover:text-red-800 bg-transparent">
+            <button v-if="!address.is_primary" class="rounded-md px-3 py-1.5 text-red-600 hover:text-red-800 bg-transparent">
               Xóa
             </button>
           </div>
 
           <Button label="Thiết lập mặc định" severity="secondary" class="rounded-sm" size="small" raised
-            :disabled="address.is_primary" />
+            :disabled="address.is_primary" @click="handleChangePrimaryAddress(address.id)" />
         </div>
       </div>
 
@@ -96,6 +96,17 @@ const handleCreateNewAddress = async (data: AddressRequest) => {
     fetchAddresses()
   } catch (err: any) {
     console.log("Error creating address", err);
+  }
+};
+
+const handleChangePrimaryAddress = async (addressId: number) => {
+  try {
+    await axios.put(`/users/${authStore.user?.id}/addresses/${addressId}`, {
+      is_primary: true
+    });
+    fetchAddresses();
+  } catch (err: any) {
+    console.log("Error changing primary address", err);
   }
 };
 
