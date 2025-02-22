@@ -1,6 +1,6 @@
 <template>
   <Dialog v-model:visible="showDialog" modal :header="dialogTitle" :style="{ width: '42rem' }" class="rounded-sm"
-    :closable=false @hide="handleDialogHide">
+    :closable=false>
     <form @submit="onSubmit" class="mt-1 text-base space-y-6">
       <!-- Existing name and phone fields remain the same -->
       <div class="grid grid-cols-2 gap-3">
@@ -105,7 +105,6 @@
 
 <script setup lang="ts">
 import type { UserAddress } from '@/types/models';
-import type { AddressRequest } from '@/types/request';
 import { toTypedSchema } from '@vee-validate/yup';
 import axios from 'axios';
 import { Button, Checkbox, Dialog, FloatLabel, InputText, Select, Textarea } from 'primevue';
@@ -164,7 +163,7 @@ const [ward, wardAttrs] = defineField('ward', {
 // Định nghĩa Props đơn giản hơn, không còn existingAddress
 interface Props {
   forcePrimaryAddress?: boolean;
-  mode?: 'create' | 'update';
+  mode: 'create' | 'update';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -292,7 +291,6 @@ const fetchDistricts = async (provinceId: number) => {
 const fetchWards = async (districtId: number) => {
   try {
     loadingWards.value = true;
-    // Giữ nguyên API endpoint vì bạn nói nó đã đúng
     const response = await axios.post(`${API_URL}/ward?district_id`, {
       district_id: districtId
     }, {
@@ -331,8 +329,6 @@ const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'cr
   // Mở dialog
   showDialog.value = true;
 
-  console.log('Opening dialog:', { mode, address });
-
   // Xử lý địa chỉ mặc định
   localIsPrimaryAddress.value = props.forcePrimaryAddress || (address?.is_primary || false);
 
@@ -352,8 +348,6 @@ const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'cr
         p.ProvinceName.trim() === address.province_name?.trim()
       );
 
-      console.log('Matched Province:', provinceObj);
-
       if (provinceObj) {
         province.value = provinceObj.ProvinceID;
 
@@ -366,7 +360,6 @@ const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'cr
           (d.DistrictName.trim() === address.district_name?.trim())
         );
 
-        console.log('Matched District:', districtObj);
 
         if (districtObj) {
           district.value = districtObj.DistrictID;
@@ -379,8 +372,6 @@ const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'cr
             (w.WardCode === address.ghn_ward_code) ||
             (w.WardName.trim() === address.ward_name?.trim())
           );
-
-          console.log('Matched Ward:', wardObj);
 
           if (wardObj) {
             ward.value = wardObj.WardCode;
@@ -399,10 +390,6 @@ const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'cr
   }
 };
 
-// Xử lý khi dialog bị đóng từ bên ngoài
-const handleDialogHide = () => {
-  emit('dialog-closed');
-};
 
 // Reset dữ liệu địa chỉ
 const resetAddressData = () => {
@@ -425,8 +412,8 @@ const closeDialog = () => {
 
 // Cập nhật phương thức emit
 const emit = defineEmits<{
-  (e: 'create-new-address', value: AddressRequest): void;
-  (e: 'update-address', value: AddressRequest): void;
+  (e: 'create-new-address', value: UserAddress): void;
+  (e: 'update-address', value: UserAddress): void;
   (e: 'dialog-closed'): void;
 }>();
 
@@ -438,7 +425,9 @@ const onSubmit = handleSubmit(async (values) => {
     const selectedWard = wards.value.find(w => w.WardCode === values.ward);
 
     // Construct the submission data
-    const submissionData: AddressRequest = {
+    const submissionData: UserAddress = {
+      id: currentAddress.value?.id || 0,
+      user_id: currentAddress.value?.user_id || '',
       full_name: values.fullName,
       phone_number: values.phoneNumber,
       province_name: selectedProvince?.ProvinceName || '',

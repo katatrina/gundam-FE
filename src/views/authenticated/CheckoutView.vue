@@ -61,7 +61,6 @@ import ListAddressesDialog from '@/components/account/ListAddressesDialog.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { UserAddress } from '@/types/models';
-import type { AddressRequest } from '@/types/request';
 import { formatFullLocation } from '@/utils/user';
 import { Tag } from 'primevue';
 import { useToast } from 'primevue/usetoast';
@@ -77,9 +76,9 @@ const addNewAddressDialogRef = ref();
 const listAddressesDialogRef = ref();
 const userHasNoAddresses = computed(() => userAddresses.value.length === 0)
 
-const handleCreateNewAddress = async (data: AddressRequest) => {
+const handleCreateNewAddress = async (address: UserAddress) => {
   try {
-    await axios.post(`/users/${authStore.user?.id}/addresses`, data);
+    await axios.post(`/users/${authStore.user?.id}/addresses`, address);
     addNewAddressDialogRef?.value.closeDialog();
     fetchUserAddresses()
     toast.add({ severity: 'success', summary: 'Đã thêm địa chỉ mới', group: 'tc', life: 3000 });
