@@ -6,12 +6,12 @@
     </div>
 
     <Button label="Thêm Địa Chỉ Mới" icon="pi pi-plus" class="px-3 py-1.5 rounded-sm text-sm"
-      @click="() => addNewAddressDialogRef?.openDialog()" />
+      @click="openCreateDialog" />
   </div>
 
-  <AddNewAddressDialog ref="addNewAddressDialogRef" :forcePrimaryAddress="shouldForcePrimaryAddress"
-    @createNewAddress="handleCreateNewAddress" />
-
+  <AddNewAddressDialog ref="addressDialogRef" :forcePrimaryAddress="userHasNoAddresses"
+    @create-new-address="handleCreateNewAddress" @update-address="handleUpdateAddress" :mode="dialogMode"
+    :existingAddress="selectedAddress" @dialog-closed="handleDialogClose"/>
   <Divider />
 
   <!-- Addresses -->
@@ -34,10 +34,12 @@
 
         <div class="flex flex-col items-end gap-y-2">
           <div class="flex">
-            <button class="rounded-md px-3 py-1.5 text-blue-600 hover:text-blue-800 bg-transparent">
+            <button class="rounded-md px-3 py-1.5 text-blue-600 hover:text-blue-800 bg-transparent"
+              @click="openEditDialog(address)">
               Cập Nhật
             </button>
-            <button v-if="!address.is_primary" class="rounded-md px-3 py-1.5 text-red-600 hover:text-red-800 bg-transparent">
+            <button v-if="!address.is_primary"
+              class="rounded-md px-3 py-1.5 text-red-600 hover:text-red-800 bg-transparent">
               Xóa
             </button>
           </div>
@@ -58,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import AddNewAddressDialog from '@/components/account/AddNewAddressDialog.vue';
+import AddNewAddressDialog from '@/components/account/AddressDialog.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { UserAddress } from '@/types/models';
@@ -68,34 +70,57 @@ import { Button, Divider, Tag } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
 
-const addresses = ref<UserAddress[]>([]);
-const loadingAddresses = ref(false);
-const addNewAddressDialogRef = ref();
-const shouldForcePrimaryAddress = computed(() => addresses.value.length === 0);
-
 const toast = useToast();
 const authStore = useAuthStore();
 
+const dialogMode = ref<'create' | 'update'>('create');
+
+const addresses = ref<UserAddress[]>([]);
+const addressDialogRef = ref();
+const selectedAddress = ref<UserAddress | null>(null);
+const userHasNoAddresses = computed(() => addresses.value.length === 0);
+
+const openCreateDialog = () => {
+  addressDialogRef?.value.openDialog(null, 'create');
+}
+
+const openEditDialog = (address: UserAddress) => {
+  addressDialogRef?.value.openDialog(address, 'update');
+}
+
 const fetchAddresses = async () => {
   try {
-    loadingAddresses.value = true;
     const response = await axios.get<UserAddress[]>(`/users/${authStore.user?.id}/addresses`);
     addresses.value = response.data;
   } catch (err) {
     console.log('Error fetching addresses', err);
-  } finally {
-    loadingAddresses.value = false;
   }
 };
 
 const handleCreateNewAddress = async (data: AddressRequest) => {
   try {
     await axios.post(`/users/${authStore.user?.id}/addresses`, data);
-    addNewAddressDialogRef?.value.closeDialog();
+    addressDialogRef?.value.closeDialog();
     toast.add({ severity: 'success', summary: 'Đã thêm địa chỉ mới', group: 'tc', life: 3000 });
     fetchAddresses()
   } catch (err: any) {
     console.log("Error creating address", err);
+  }
+};
+
+const handleUpdateAddress = async (data: AddressRequest & { id?: number }) => {
+  try {
+    // Lấy ID từ currentAddress mà bạn đã lưu trước đó
+    const addressId = selectedAddress.value?.id;
+
+    await axios.put(`/users/${authStore.user?.id}/addresses/${addressId}`, data);
+    addressDialogRef?.value.closeDialog();
+    toast.add({ severity: 'success', summary: 'Đã cập nhật địa chỉ', group: 'tc', life: 3000 });
+    fetchAddresses()
+  } catch (err: any) {
+    console.log("Error updating address", err);
+  } finally {
+    selectedAddress.value = null;
   }
 };
 
@@ -108,6 +133,11 @@ const handleChangePrimaryAddress = async (addressId: number) => {
   } catch (err: any) {
     console.log("Error changing primary address", err);
   }
+};
+
+// Thêm vào phương thức
+const handleDialogClose = () => {
+  selectedAddress.value = null;
 };
 
 onMounted(fetchAddresses);

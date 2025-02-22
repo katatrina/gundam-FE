@@ -1,6 +1,6 @@
 <template>
-  <Dialog v-model:visible="showDialog" modal header="Địa chỉ mới" :style="{ width: '42rem' }" class="rounded-sm"
-    :closable=false>
+  <Dialog v-model:visible="showDialog" modal :header="dialogTitle" :style="{ width: '42rem' }" class="rounded-sm"
+    :closable=false @hide="handleDialogHide">
     <form @submit="onSubmit" class="mt-1 text-base space-y-6">
       <!-- Existing name and phone fields remain the same -->
       <div class="grid grid-cols-2 gap-3">
@@ -77,8 +77,8 @@
 
       <div class="w-fit">
         <div class="flex items-center min-w-fit"
-          :class="{ 'opacity-50': props.forcePrimaryAddress, 'cursor-not-allowed': props.forcePrimaryAddress, 'cursor-pointer': !props.forcePrimaryAddress }"
-          v-tooltip.top="props.forcePrimaryAddress ? {
+          :class="{ 'opacity-50': props.forcePrimaryAddress || currentAddress?.is_primary, 'cursor-not-allowed': props.forcePrimaryAddress || currentAddress?.is_primary, 'cursor-pointer': !props.forcePrimaryAddress && !currentAddress?.is_primary }"
+          v-tooltip.top="props.forcePrimaryAddress || currentAddress?.is_primary ? {
             value: 'Bạn không thể xoá nhãn Địa chỉ mặc định. Hãy đặt địa chỉ khác làm Địa chỉ mặc định của bạn nhé.',
             pt: {
               root: {
@@ -86,10 +86,10 @@
               }
             },
           } : undefined">
-          <Checkbox v-model="isPrimaryAddress" inputId="primaryAddress" binary :disabled="props.forcePrimaryAddress"
-            class="w-6" />
+          <Checkbox v-model="isPrimaryAddress" inputId="primaryAddress" binary
+            :disabled="props.forcePrimaryAddress || currentAddress?.is_primary" class="w-6" />
           <label for="primaryAddress" class="text-gray-700 select-none whitespace-nowrap"
-            :class="{ 'cursor-not-allowed': props.forcePrimaryAddress, 'cursor-pointer': !props.forcePrimaryAddress }">
+            :class="{ 'cursor-not-allowed': props.forcePrimaryAddress || currentAddress?.is_primary, 'cursor-pointer': !props.forcePrimaryAddress && !currentAddress?.is_primary }">
             Đặt làm mặc định
           </label>
         </div>
@@ -97,13 +97,14 @@
 
       <div class="flex justify-end gap-3">
         <Button label="Hủy" severity="secondary" @click="closeDialog" />
-        <Button type="submit" label="Xác Nhận" severity="primary" />
+        <Button type="submit" :label="submitButtonLabel" severity="primary" />
       </div>
     </form>
   </Dialog>
 </template>
 
 <script setup lang="ts">
+import type { UserAddress } from '@/types/models';
 import type { AddressRequest } from '@/types/request';
 import { toTypedSchema } from '@vee-validate/yup';
 import axios from 'axios';
@@ -144,14 +145,6 @@ const validationSchema = yup.object({
 // Initialize form with VeeValidate
 const { defineField, handleSubmit, resetForm, errors } = useForm({
   validationSchema: toTypedSchema(validationSchema),
-  initialValues: {
-    fullName: '',
-    phoneNumber: '',
-    addressDetail: '',
-    province: undefined,
-    district: undefined,
-    ward: undefined
-  }
 });
 
 // Define all form fields
@@ -168,14 +161,19 @@ const [ward, wardAttrs] = defineField('ward', {
   validateOnBlur: false,
 });
 
-// Props definition
+// Định nghĩa Props đơn giản hơn, không còn existingAddress
 interface Props {
-  forcePrimaryAddress?: boolean
+  forcePrimaryAddress?: boolean;
+  mode?: 'create' | 'update';
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  forcePrimaryAddress: false
+  forcePrimaryAddress: false,
+  mode: 'create'
 })
+
+// Cập nhật tên và tiêu đề Dialog dựa vào mode
+const dialogTitle = computed(() => dialogMode.value === 'create' ? 'Địa chỉ mới' : 'Cập nhật địa chỉ');
 
 // Refs for data
 const showDialog = ref(false);
@@ -183,6 +181,9 @@ const provinces = ref<Province[]>([]);
 const districts = ref<District[]>([]);
 const wards = ref<Ward[]>([]);
 const localIsPrimaryAddress = ref(false);
+// Ref để lưu trữ địa chỉ hiện tại và chế độ làm việc
+const currentAddress = ref<UserAddress | null>(null);
+const dialogMode = ref<'create' | 'update'>(props.mode);
 
 const isPrimaryAddress = computed({
   get: () => localIsPrimaryAddress.value,
@@ -291,6 +292,7 @@ const fetchDistricts = async (provinceId: number) => {
 const fetchWards = async (districtId: number) => {
   try {
     loadingWards.value = true;
+    // Giữ nguyên API endpoint vì bạn nói nó đã đúng
     const response = await axios.post(`${API_URL}/ward?district_id`, {
       district_id: districtId
     }, {
@@ -312,27 +314,121 @@ const fetchWards = async (districtId: number) => {
   }
 };
 
-// Dialog handlers
-const openDialog = () => {
+/**
+ * Mở dialog với address cụ thể
+ * @param address địa chỉ cần chỉnh sửa (nếu ở chế độ update)
+ * @param mode chế độ 'create' hoặc 'update'
+ */
+const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'create') => {
+  // Reset form và cập nhật các giá trị
+  resetForm();
+  resetAddressData();
+
+  // Cập nhật mode và address hiện tại
+  dialogMode.value = mode;
+  currentAddress.value = address || null;
+
+  // Mở dialog
   showDialog.value = true;
-  // Nếu forcePrimaryAddress = true, có nghĩa là:
-  // 1. Đây là địa chỉ mặc định hiện tại (không thể bỏ chọn)
-  // 2. Hoặc người dùng chưa có địa chỉ nào (cần tự động chọn làm mặc định)
-  // => Trong cả hai trường hợp, chúng ta đều muốn checkbox được tích
-  localIsPrimaryAddress.value = props.forcePrimaryAddress;
+
+  console.log('Opening dialog:', { mode, address });
+
+  // Xử lý địa chỉ mặc định
+  localIsPrimaryAddress.value = props.forcePrimaryAddress || (address?.is_primary || false);
+
+  // Nếu đang ở chế độ update và có địa chỉ, điền dữ liệu
+  if (mode === 'update' && address) {
+    // Điền thông tin cơ bản
+    fullName.value = address.full_name || '';
+    phoneNumber.value = address.phone_number || '';
+    addressDetail.value = address.detail || '';
+
+    try {
+      // Tải dữ liệu tỉnh/thành phố
+      await fetchProvinces();
+
+      // Tìm và chọn tỉnh/thành phố
+      const provinceObj = provinces.value.find(p =>
+        p.ProvinceName.trim() === address.province_name?.trim()
+      );
+
+      console.log('Matched Province:', provinceObj);
+
+      if (provinceObj) {
+        province.value = provinceObj.ProvinceID;
+
+        // Tải quận/huyện sau khi đã chọn tỉnh/thành phố
+        await fetchDistricts(provinceObj.ProvinceID);
+
+        // Tìm và chọn quận/huyện
+        const districtObj = districts.value.find(d =>
+          (d.DistrictID === address.ghn_district_id) ||
+          (d.DistrictName.trim() === address.district_name?.trim())
+        );
+
+        console.log('Matched District:', districtObj);
+
+        if (districtObj) {
+          district.value = districtObj.DistrictID;
+
+          // Tải phường/xã sau khi đã chọn quận/huyện
+          await fetchWards(districtObj.DistrictID);
+
+          // Tìm và chọn phường/xã
+          const wardObj = wards.value.find(w =>
+            (w.WardCode === address.ghn_ward_code) ||
+            (w.WardName.trim() === address.ward_name?.trim())
+          );
+
+          console.log('Matched Ward:', wardObj);
+
+          if (wardObj) {
+            ward.value = wardObj.WardCode;
+          } else {
+            console.warn('No matching ward found');
+          }
+        } else {
+          console.warn('No matching district found');
+        }
+      } else {
+        console.warn('No matching province found');
+      }
+    } catch (error) {
+      console.error('Error filling address details:', error);
+    }
+  }
 };
 
-const closeDialog = () => {
-  showDialog.value = false;
-  resetForm();
+// Xử lý khi dialog bị đóng từ bên ngoài
+const handleDialogHide = () => {
+  emit('dialog-closed');
+};
+
+// Reset dữ liệu địa chỉ
+const resetAddressData = () => {
+  province.value = undefined;
+  district.value = undefined;
+  ward.value = undefined;
   districts.value = [];
   wards.value = [];
   localIsPrimaryAddress.value = false;
+  currentAddress.value = null;
 };
 
+// Đóng dialog
+const closeDialog = () => {
+  showDialog.value = false;
+  resetForm();
+  resetAddressData();
+  emit('dialog-closed');
+};
+
+// Cập nhật phương thức emit
 const emit = defineEmits<{
-  (e: 'createNewAddress', value: AddressRequest): void
-}>()
+  (e: 'create-new-address', value: AddressRequest): void;
+  (e: 'update-address', value: AddressRequest): void;
+  (e: 'dialog-closed'): void;
+}>();
 
 const onSubmit = handleSubmit(async (values) => {
   try {
@@ -355,10 +451,19 @@ const onSubmit = handleSubmit(async (values) => {
       is_pickup_address: false
     };
 
-    // Parent component will handle the submission and close the dialog
-    emit('createNewAddress', submissionData);
+    // Nếu đang ở chế độ update, thêm id từ địa chỉ hiện tại
+    if (dialogMode.value === 'update' && currentAddress.value?.id) {
+      (submissionData as any).id = currentAddress.value.id;
+    }
+
+    // Emit sự kiện phù hợp dựa vào mode
+    if (dialogMode.value === 'create') {
+      emit('create-new-address', submissionData);
+    } else {
+      emit('update-address', submissionData);
+    }
   } catch (error) {
-    console.error('Error submitting form:', error);
+    console.error(`Error ${dialogMode.value === 'create' ? 'creating' : 'updating'} address:`, error);
   }
 }, (errors) => {
   // You can handle validation errors here, maybe scroll to the first error
@@ -366,6 +471,9 @@ const onSubmit = handleSubmit(async (values) => {
   const errorElement = document.querySelector(`[id="${firstError}"]`);
   errorElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
+
+// Cập nhật nút submit dựa vào dialogMode
+const submitButtonLabel = computed(() => dialogMode.value === 'create' ? 'Xác Nhận' : 'Cập Nhật');
 
 // Fetch provinces on mount
 onMounted(() => {

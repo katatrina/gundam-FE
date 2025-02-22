@@ -26,8 +26,8 @@
           </button>
         </div>
 
-        <AddNewAddressDialog ref="addNewAddressDialogRef" :forcePrimaryAddress="shouldForcePrimaryAddress"
-          @createNewAddress="handleCreateNewAddress" />
+        <AddressDialog ref="addNewAddressDialogRef" :force-primary-address="userHasNoAddresses"
+          @create-new-address="handleCreateNewAddress" mode="create" />
         <ListAddressesDialog ref="listAddressesDialogRef" @changeAddress="handleChangeAddress"
           :selectedAddress="selectedAddress" />
 
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import AddNewAddressDialog from '@/components/account/AddNewAddressDialog.vue';
+import AddressDialog from '@/components/account/AddressDialog.vue';
 import ListAddressesDialog from '@/components/account/ListAddressesDialog.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
@@ -75,7 +75,7 @@ const userAddresses = ref<UserAddress[]>([]);
 const selectedAddress = ref<UserAddress | null>(null);
 const addNewAddressDialogRef = ref();
 const listAddressesDialogRef = ref();
-const shouldForcePrimaryAddress = computed(() => userAddresses.value.length === 0)
+const userHasNoAddresses = computed(() => userAddresses.value.length === 0)
 
 const handleCreateNewAddress = async (data: AddressRequest) => {
   try {
