@@ -26,8 +26,8 @@
           </button>
         </div>
 
-        <AddNewAddressDialog ref="addNewAddressDialogRef" :forcePrimaryAddress="shouldForcePrimaryAddress"
-          @createNewAddress="handleCreateNewAddress" />
+        <AddressDialog ref="addNewAddressDialogRef" :force-primary-address="userHasNoAddresses"
+          @create-new-address="handleCreateNewAddress" mode="create" />
         <ListAddressesDialog ref="listAddressesDialogRef" @changeAddress="handleChangeAddress"
           :selectedAddress="selectedAddress" />
 
@@ -56,12 +56,11 @@
 </template>
 
 <script setup lang="ts">
-import AddNewAddressDialog from '@/components/account/AddNewAddressDialog.vue';
+import AddressDialog from '@/components/account/AddressDialog.vue';
 import ListAddressesDialog from '@/components/account/ListAddressesDialog.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { UserAddress } from '@/types/models';
-import type { AddressRequest } from '@/types/request';
 import { formatFullLocation } from '@/utils/user';
 import { Tag } from 'primevue';
 import { useToast } from 'primevue/usetoast';
@@ -75,11 +74,11 @@ const userAddresses = ref<UserAddress[]>([]);
 const selectedAddress = ref<UserAddress | null>(null);
 const addNewAddressDialogRef = ref();
 const listAddressesDialogRef = ref();
-const shouldForcePrimaryAddress = computed(() => userAddresses.value.length === 0)
+const userHasNoAddresses = computed(() => userAddresses.value.length === 0)
 
-const handleCreateNewAddress = async (data: AddressRequest) => {
+const handleCreateNewAddress = async (address: UserAddress) => {
   try {
-    await axios.post(`/users/${authStore.user?.id}/addresses`, data);
+    await axios.post(`/users/${authStore.user?.id}/addresses`, address);
     addNewAddressDialogRef?.value.closeDialog();
     fetchUserAddresses()
     toast.add({ severity: 'success', summary: 'Đã thêm địa chỉ mới', group: 'tc', life: 3000 });

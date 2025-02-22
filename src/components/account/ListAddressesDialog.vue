@@ -105,21 +105,4 @@ defineExpose({
 </script>
 
 <style scoped>
-/* Định nghĩa các class cho hiệu ứng transition */
-.dialog-enter-active,
-.dialog-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.dialog-enter-from,
-.dialog-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
-.dialog-enter-to,
-.dialog-leave-from {
-  opacity: 1;
-  transform: scale(1);
-}
 </style>
