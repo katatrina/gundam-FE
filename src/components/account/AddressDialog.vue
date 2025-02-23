@@ -95,6 +95,27 @@
         </div>
       </div>
 
+      <!-- Sau div của isPrimaryAddress -->
+      <div v-if="authStore.user?.role === 'seller'" class="w-fit">
+        <div class="flex items-center min-w-fit"
+          :class="{ 'opacity-50': props.forcePickupAddress || currentAddress?.is_pickup_address, 'cursor-not-allowed': props.forcePickupAddress || currentAddress?.is_pickup_address, 'cursor-pointer': !props.forcePickupAddress && !currentAddress?.is_pickup_address }"
+          v-tooltip.top="props.forcePickupAddress || currentAddress?.is_pickup_address ? {
+            value: 'Bạn không thể xoá nhãn Địa chỉ lấy hàng. Hãy đặt địa chỉ khác làm Địa chỉ lấy hàng của bạn nhé.',
+            pt: {
+              root: {
+                style: { 'max-width': '170px', 'font-size': '0.875rem' }
+              }
+            },
+          } : undefined">
+          <Checkbox v-model="isPickupAddress" inputId="pickupAddress" binary
+            :disabled="props.forcePickupAddress || currentAddress?.is_pickup_address" class="w-6" />
+          <label for="pickupAddress" class="text-gray-700 select-none whitespace-nowrap"
+            :class="{ 'cursor-not-allowed': props.forcePickupAddress || currentAddress?.is_pickup_address, 'cursor-pointer': !props.forcePickupAddress && !currentAddress?.is_pickup_address }">
+            Đặt làm địa chỉ lấy hàng
+          </label>
+        </div>
+      </div>
+
       <div class="flex justify-end gap-3">
         <Button label="Hủy" severity="secondary" @click="closeDialog" />
         <Button type="submit" :label="submitButtonLabel" severity="primary" />
@@ -111,10 +132,13 @@ import { Button, Checkbox, Dialog, FloatLabel, InputText, Select, Textarea } fro
 import { useForm } from 'vee-validate';
 import { computed, onMounted, ref } from 'vue';
 import * as yup from 'yup';
+import { useAuthStore } from '@/stores/auth';
 
 // Constants remain the same
 const GHN_TOKEN = import.meta.env.VITE_GHN_TOKEN_API;
 const API_URL = 'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data';
+
+const authStore = useAuthStore();
 
 // Updated validation schema with province, district, and ward
 const validationSchema = yup.object({
@@ -163,11 +187,13 @@ const [ward, wardAttrs] = defineField('ward', {
 // Định nghĩa Props đơn giản hơn, không còn existingAddress
 interface Props {
   forcePrimaryAddress?: boolean;
+  forcePickupAddress?: boolean;
   mode: 'create' | 'update';
 }
 
 const props = withDefaults(defineProps<Props>(), {
   forcePrimaryAddress: false,
+  forcePickupAddress: false,
   mode: 'create'
 })
 
@@ -180,6 +206,8 @@ const provinces = ref<Province[]>([]);
 const districts = ref<District[]>([]);
 const wards = ref<Ward[]>([]);
 const localIsPrimaryAddress = ref(false);
+const localIsPickupAddress = ref(false);
+
 // Ref để lưu trữ địa chỉ hiện tại và chế độ làm việc
 const currentAddress = ref<UserAddress | null>(null);
 const dialogMode = ref<'create' | 'update'>(props.mode);
@@ -189,6 +217,15 @@ const isPrimaryAddress = computed({
   set: (newValue) => {
     if (!props.forcePrimaryAddress) {
       localIsPrimaryAddress.value = newValue;
+    }
+  }
+});
+
+const isPickupAddress = computed({
+  get: () => localIsPickupAddress.value,
+  set: (newValue) => {
+    if (!props.forcePickupAddress) {
+      localIsPickupAddress.value = newValue;
     }
   }
 });
@@ -331,6 +368,7 @@ const openDialog = async (address?: UserAddress, mode: 'create' | 'update' = 'cr
 
   // Xử lý địa chỉ mặc định
   localIsPrimaryAddress.value = props.forcePrimaryAddress || (address?.is_primary || false);
+  localIsPickupAddress.value = props.forcePickupAddress || (address?.is_pickup_address || false);
 
   // Nếu đang ở chế độ update và có địa chỉ, điền dữ liệu
   if (mode === 'update' && address) {
@@ -399,6 +437,7 @@ const resetAddressData = () => {
   districts.value = [];
   wards.value = [];
   localIsPrimaryAddress.value = false;
+  localIsPickupAddress.value = false;
   currentAddress.value = null;
 };
 
@@ -407,14 +446,12 @@ const closeDialog = () => {
   showDialog.value = false;
   resetForm();
   resetAddressData();
-  emit('dialog-closed');
 };
 
 // Cập nhật phương thức emit
 const emit = defineEmits<{
   (e: 'create-new-address', value: UserAddress): void;
   (e: 'update-address', value: UserAddress): void;
-  (e: 'dialog-closed'): void;
 }>();
 
 const onSubmit = handleSubmit(async (values) => {
@@ -437,7 +474,7 @@ const onSubmit = handleSubmit(async (values) => {
       ghn_ward_code: selectedWard?.WardCode || '',
       detail: values.addressDetail,
       is_primary: localIsPrimaryAddress.value,
-      is_pickup_address: false
+      is_pickup_address: localIsPickupAddress.value
     };
 
     // Nếu đang ở chế độ update, thêm id từ địa chỉ hiện tại

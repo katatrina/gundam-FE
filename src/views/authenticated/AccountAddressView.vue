@@ -9,7 +9,7 @@
       @click="openCreateDialog" />
   </div>
 
-  <AddNewAddressDialog ref="addressDialogRef" :forcePrimaryAddress="userHasNoAddresses"
+  <AddressDialog ref="addressDialogRef" :forcePrimaryAddress="userHasNoAddresses" :forcePickupAddress="false"
     @create-new-address="handleCreateNewAddress" @update-address="handleUpdateAddress" :mode="dialogMode" />
 
   <Divider />
@@ -38,7 +38,7 @@
               @click="openEditDialog(address)">
               Cập Nhật
             </button>
-            <button v-if="!address.is_primary"
+            <button v-if="!address.is_primary && !address.is_pickup_address" @click="handleDeleteAddress(address.id)"
               class="rounded-md px-3 py-1.5 text-red-600 hover:text-red-800 bg-transparent">
               Xóa
             </button>
@@ -60,11 +60,10 @@
 </template>
 
 <script setup lang="ts">
-import AddNewAddressDialog from '@/components/account/AddressDialog.vue';
+import AddressDialog from '@/components/account/AddressDialog.vue';
 import axios from '@/config/axios';
 import { useAuthStore } from '@/stores/auth';
 import type { UserAddress } from '@/types/models';
-// import type { AddressRequest } from '@/types/request';
 import { formatLocation } from '@/utils/user';
 import { Button, Divider, Tag } from 'primevue';
 import { useToast } from 'primevue/usetoast';
@@ -128,6 +127,16 @@ const handleChangePrimaryAddress = async (addressId: number) => {
     fetchAddresses();
   } catch (err: any) {
     console.log("Error changing primary address", err);
+  }
+};
+
+const handleDeleteAddress = async (addressId: number) => {
+  try {
+    await axios.delete(`/users/${authStore.user?.id}/addresses/${addressId}`);
+    fetchAddresses();
+    toast.add({ severity: 'success', summary: 'Đã xóa địa chỉ', group: 'tc', life: 3000 });
+  } catch (err: any) {
+    console.log("Error deleting address", err);
   }
 };
 
