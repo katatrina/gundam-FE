@@ -15,9 +15,17 @@
       <transition name="fade">
         <div v-if="showDropdown"
           class="absolute top-full mt-1 right-2 w-48 bg-white rounded-md shadow-lg ring-2 ring-black ring-opacity-10 z-50">
-          <!-- Added top-full to position it below the avatar -->
-          <ul class="py-2">
-            <li v-for="item in menuItems" :key="item.label"
+          <ul class="">
+            <!-- Tách riêng item đầu tiên với style đặc biệt -->
+            <li
+              class="rounded-t-md px-4 py-3 hover:bg-emerald-100 cursor-pointer text-emerald-600 font-medium text-sm flex items-center gap-2 border-b border-gray-100"
+              @click="handleItemClick(menuItems[0])">
+              <i :class="menuItems[0].icon"></i>
+              {{ menuItems[0].label }}
+            </li>
+            <!-- Các items còn lại giữ nguyên style -->
+            <li v-for="item in menuItems.slice(1)" :key="item.label"
+              :class="{ 'rounded-b-md': item === menuItems[menuItems.length - 1] }"
               class="px-4 py-2 hover:bg-emerald-200 cursor-pointer text-gray-700 text-sm flex items-center gap-2"
               @click="handleItemClick(item)">
               <i :class="item.icon"></i>
@@ -47,6 +55,7 @@ const toast = useToast();
 const { user } = storeToRefs(authStore);
 
 const menuItems = ref([
+  { label: "Trở Thành Người Bán", path: "/become-seller", icon: "pi pi-user-plus" },
   { label: "Tài Khoản", path: "/account/profile", icon: "pi pi-user" },
   { label: "Đơn Mua", path: "/account/orders/purchase", icon: "pi pi-clipboard" },
   { label: "Đăng Xuất", path: "/logout", icon: "pi pi-sign-out" },
@@ -84,15 +93,4 @@ const handleItemClick = (item: { label: string, path: string }) => {
 
 </script>
 
-<style>
-/* Add fade transition */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
+<style></style>
