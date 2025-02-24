@@ -1,20 +1,21 @@
-import MainLayout from '@/layouts/MainLayout.vue'
-import AuctionView from '@/views/public/AuctionView.vue'
-import ProductsListView from '@/views/public/ProductsListView.vue'
-import ExchangeView from '@/views/public/ExchangeView.vue'
-import HomeView from '@/views/public/HomeView.vue'
-import LoginView from '@/views/authentication/LoginView.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import AccountLayout from '@/layouts/AccountLayout.vue'
-import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
+import MainLayout from '@/layouts/MainLayout.vue'
+import MinimalLayout from '@/layouts/MinimalLayout.vue'
+import { useAuthStore } from '@/stores/auth'
 import AccountAddressesView from '@/views/authenticated/AccountAddressView.vue'
+import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
 import PurchaseOrdersView from '@/views/authenticated/AccountPurchaseOrdersView.vue'
-import ProductDetailView from '@/views/public/ProductDetailView.vue'
+import BecomeSellerView from '@/views/authenticated/BecomeSellerView.vue'
 import CartView from '@/views/authenticated/CartView.vue'
 import CheckoutView from '@/views/authenticated/CheckoutView.vue'
-import BecomeSellerView from '@/views/authenticated/BecomeSellerView.vue'
+import LoginView from '@/views/authentication/LoginView.vue'
+import AuctionView from '@/views/public/AuctionView.vue'
+import ExchangeView from '@/views/public/ExchangeView.vue'
+import HomeView from '@/views/public/HomeView.vue'
 import NotFoundView from '@/views/public/NotFoundView.vue'
+import ProductDetailView from '@/views/public/ProductDetailView.vue'
+import ProductsListView from '@/views/public/ProductsListView.vue'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
@@ -65,15 +66,6 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'become-seller',
-        name: 'become-seller',
-        component: BecomeSellerView,
-        meta: {
-          requiresAuth: true,
-          requiresMemberRole: true,
-        },
-      },
-      {
         path: 'account',
         component: AccountLayout,
         redirect: { name: 'account-profile' },
@@ -98,8 +90,29 @@ const routes = [
           },
         ],
       },
+    ],
+  },
+  {
+    path: '/become-seller',
+    component: MinimalLayout,
+    children: [
       {
-        path: ':pathMatch(.*)*', // Route catch-all phải ở cuối cùng
+        path: '',
+        name: 'become-seller',
+        component: BecomeSellerView,
+        meta: {
+          requiresAuth: true,
+          requiresMemberRole: true,
+        },
+      },
+    ],
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: MinimalLayout,
+    children: [
+      {
+        path: '',
         name: 'not-found',
         component: NotFoundView,
       },
