@@ -39,191 +39,174 @@
       <div class="border-t my-4"></div>
 
       <!-- Step Panels -->
-      <div class="p-2">
-        <!-- Step 1: Seller Information -->
-        <div v-if="activeStep === 1" class="flex flex-col gap-4">
-          <div class="field">
-            <label for="sellerName" class="block mb-1 text-sm">Tên người bán</label>
-            <input
-              id="sellerName"
-              v-model="sellerName"
-              class="w-full px-3 py-2 border rounded-md"
-              placeholder="Nhập tên người bán"
-            />
-          </div>
+      <!-- Step 1: Seller Information -->
+      <div v-if="activeStep === 1" class="">
+        <div class="flex flex-row mb-4 items-center">
+          <label for="sellerName" class="w-1/3 text-right pr-4 text-sm font-medium text-gray-700"
+            ><span class="text-red-400">*</span> Tên Shop</label
+          >
+          <InputText id="sellerName" type="text" v-model="sellerName" size="small" class="w-2/5" />
+        </div>
 
-          <div class="field">
-            <label for="sellerEmail" class="block mb-1 text-sm">Email</label>
-            <input
-              id="sellerEmail"
-              v-model="sellerEmail"
-              type="email"
-              class="w-full px-3 py-2 border rounded-md"
-              placeholder="Nhập email"
-            />
-          </div>
+        <div class="flex flex-row items-center gap-4 w-full text-right ml-16">
+          <PhoneNumberField
+            :current-phone-number="sellerPhoneNumber"
+            :require-marker="true"
+            :sm-medium-gray700="true"
+          />
+        </div>
 
-          <div class="field">
-            <label for="sellerPhone" class="block mb-1 text-sm">Số điện thoại</label>
-            <input
-              id="sellerPhone"
-              v-model="sellerPhone"
-              class="w-full px-3 py-2 border rounded-md"
-              placeholder="Nhập số điện thoại"
-            />
-          </div>
+        <div class="flex justify-end mt-4">
+          <button
+            @click="goToNextStep"
+            class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            :disabled="!isStep1Valid"
+          >
+            Tiếp theo
+          </button>
+        </div>
+      </div>
 
-          <div class="flex justify-end mt-4">
-            <button
-              @click="goToNextStep"
-              class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
-            >
-              Tiếp theo
-            </button>
+      <!-- Step 2: Shipping Settings -->
+      <div v-if="activeStep === 2" class="flex flex-col gap-4">
+        <div class="text-lg font-semibold mb-2">Cài đặt vận chuyển</div>
+
+        <div class="field">
+          <label for="shippingMethod" class="block mb-1 text-sm">Phương thức vận chuyển</label>
+          <select
+            id="shippingMethod"
+            v-model="shippingMethod"
+            class="w-full px-3 py-2 border rounded-md"
+          >
+            <option v-for="method in shippingOptions" :key="method.code" :value="method.code">
+              {{ method.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="block mb-1 text-sm">Khu vực giao hàng</label>
+          <div class="space-y-2">
+            <div v-for="area in areaOptions" :key="area.code" class="flex items-center">
+              <input
+                type="checkbox"
+                :id="area.code"
+                :value="area"
+                v-model="shippingAreas"
+                class="mr-2"
+              />
+              <label :for="area.code">{{ area.name }}</label>
+            </div>
           </div>
         </div>
 
-        <!-- Step 2: Shipping Settings -->
-        <div v-if="activeStep === 2" class="flex flex-col gap-4">
-          <div class="text-lg font-semibold mb-2">Cài đặt vận chuyển</div>
+        <div class="flex justify-between mt-4">
+          <button
+            @click="goToPreviousStep"
+            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Quay lại
+          </button>
+          <button
+            @click="goToNextStep"
+            class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
+          >
+            Tiếp theo
+          </button>
+        </div>
+      </div>
 
-          <div class="field">
-            <label for="shippingMethod" class="block mb-1 text-sm">Phương thức vận chuyển</label>
-            <select
-              id="shippingMethod"
-              v-model="shippingMethod"
-              class="w-full px-3 py-2 border rounded-md"
-            >
-              <option v-for="method in shippingOptions" :key="method.code" :value="method.code">
-                {{ method.name }}
-              </option>
-            </select>
+      <!-- Step 3: Terms of Service -->
+      <div v-if="activeStep === 3" class="flex flex-col gap-4">
+        <div class="text-lg font-semibold mb-2">Điều khoản sử dụng</div>
+
+        <div class="border p-4 h-56 overflow-y-auto text-sm rounded bg-gray-50">
+          <p class="mb-2">Điều khoản và điều kiện sử dụng dịch vụ của chúng tôi:</p>
+          <p class="mb-2">1. Người bán phải cung cấp thông tin chính xác về sản phẩm.</p>
+          <p class="mb-2">2. Thời gian xử lý đơn hàng không quá 24 giờ kể từ khi nhận đơn.</p>
+          <p class="mb-2">3. Người bán chịu trách nhiệm về chất lượng sản phẩm cung cấp.</p>
+          <p>4. Phí dịch vụ sẽ được tính theo từng gói đăng ký.</p>
+        </div>
+
+        <div class="field-checkbox flex items-center">
+          <input
+            type="checkbox"
+            id="acceptTerms"
+            v-model="acceptTerms"
+            class="mr-2 accent-emerald-500"
+          />
+          <label for="acceptTerms" class="text-sm">Tôi đồng ý với điều khoản sử dụng</label>
+        </div>
+
+        <div class="flex justify-between mt-4">
+          <button
+            @click="goToPreviousStep"
+            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Quay lại
+          </button>
+          <button
+            @click="goToNextStep"
+            :disabled="!acceptTerms"
+            class="px-4 py-2 rounded-md transition-colors"
+            :class="
+              acceptTerms
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            "
+          >
+            Tiếp theo
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Registration Package -->
+      <div v-if="activeStep === 4" class="flex flex-col gap-4">
+        <div class="text-lg font-semibold mb-2">Đăng ký gói bán</div>
+
+        <div class="space-y-4">
+          <div
+            class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+            :class="{ 'border-emerald-500': selectedPackage === 'basic' }"
+            @click="selectedPackage = 'basic'"
+          >
+            <div class="text-base font-medium mb-1">Gói cơ bản</div>
+            <div class="text-xl font-bold mb-2">199.000đ/tháng</div>
+            <ul class="list-disc pl-5 text-xs space-y-1">
+              <li>Đăng 100 sản phẩm</li>
+              <li>Hỗ trợ cơ bản</li>
+              <li>Thống kê đơn giản</li>
+            </ul>
           </div>
 
-          <div class="field">
-            <label class="block mb-1 text-sm">Khu vực giao hàng</label>
-            <div class="space-y-2">
-              <div v-for="area in areaOptions" :key="area.code" class="flex items-center">
-                <input
-                  type="checkbox"
-                  :id="area.code"
-                  :value="area"
-                  v-model="shippingAreas"
-                  class="mr-2"
-                />
-                <label :for="area.code">{{ area.name }}</label>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-between mt-4">
-            <button
-              @click="goToPreviousStep"
-              class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Quay lại
-            </button>
-            <button
-              @click="goToNextStep"
-              class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
-            >
-              Tiếp theo
-            </button>
+          <div
+            class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+            :class="{ 'border-emerald-500': selectedPackage === 'premium' }"
+            @click="selectedPackage = 'premium'"
+          >
+            <div class="text-base font-medium mb-1">Gói cao cấp</div>
+            <div class="text-xl font-bold mb-2">499.000đ/tháng</div>
+            <ul class="list-disc pl-5 text-xs space-y-1">
+              <li>Không giới hạn sản phẩm</li>
+              <li>Hỗ trợ 24/7</li>
+              <li>Thống kê chi tiết</li>
+            </ul>
           </div>
         </div>
 
-        <!-- Step 3: Terms of Service -->
-        <div v-if="activeStep === 3" class="flex flex-col gap-4">
-          <div class="text-lg font-semibold mb-2">Điều khoản sử dụng</div>
-
-          <div class="border p-4 h-56 overflow-y-auto text-sm rounded bg-gray-50">
-            <p class="mb-2">Điều khoản và điều kiện sử dụng dịch vụ của chúng tôi:</p>
-            <p class="mb-2">1. Người bán phải cung cấp thông tin chính xác về sản phẩm.</p>
-            <p class="mb-2">2. Thời gian xử lý đơn hàng không quá 24 giờ kể từ khi nhận đơn.</p>
-            <p class="mb-2">3. Người bán chịu trách nhiệm về chất lượng sản phẩm cung cấp.</p>
-            <p>4. Phí dịch vụ sẽ được tính theo từng gói đăng ký.</p>
-          </div>
-
-          <div class="field-checkbox flex items-center">
-            <input
-              type="checkbox"
-              id="acceptTerms"
-              v-model="acceptTerms"
-              class="mr-2 accent-emerald-500"
-            />
-            <label for="acceptTerms" class="text-sm">Tôi đồng ý với điều khoản sử dụng</label>
-          </div>
-
-          <div class="flex justify-between mt-4">
-            <button
-              @click="goToPreviousStep"
-              class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Quay lại
-            </button>
-            <button
-              @click="goToNextStep"
-              :disabled="!acceptTerms"
-              class="px-4 py-2 rounded-md transition-colors"
-              :class="
-                acceptTerms
-                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              "
-            >
-              Tiếp theo
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 4: Registration Package -->
-        <div v-if="activeStep === 4" class="flex flex-col gap-4">
-          <div class="text-lg font-semibold mb-2">Đăng ký gói bán</div>
-
-          <div class="space-y-4">
-            <div
-              class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-              :class="{ 'border-emerald-500': selectedPackage === 'basic' }"
-              @click="selectedPackage = 'basic'"
-            >
-              <div class="text-base font-medium mb-1">Gói cơ bản</div>
-              <div class="text-xl font-bold mb-2">199.000đ/tháng</div>
-              <ul class="list-disc pl-5 text-xs space-y-1">
-                <li>Đăng 100 sản phẩm</li>
-                <li>Hỗ trợ cơ bản</li>
-                <li>Thống kê đơn giản</li>
-              </ul>
-            </div>
-
-            <div
-              class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-              :class="{ 'border-emerald-500': selectedPackage === 'premium' }"
-              @click="selectedPackage = 'premium'"
-            >
-              <div class="text-base font-medium mb-1">Gói cao cấp</div>
-              <div class="text-xl font-bold mb-2">499.000đ/tháng</div>
-              <ul class="list-disc pl-5 text-xs space-y-1">
-                <li>Không giới hạn sản phẩm</li>
-                <li>Hỗ trợ 24/7</li>
-                <li>Thống kê chi tiết</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="flex justify-between mt-4">
-            <button
-              @click="goToPreviousStep"
-              class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Quay lại
-            </button>
-            <button
-              @click="completeRegistration"
-              class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
-            >
-              Hoàn tất đăng ký
-            </button>
-          </div>
+        <div class="flex justify-between mt-4">
+          <button
+            @click="goToPreviousStep"
+            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Quay lại
+          </button>
+          <button
+            @click="completeRegistration"
+            class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
+          >
+            Hoàn tất đăng ký
+          </button>
         </div>
       </div>
     </div>
@@ -232,11 +215,14 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { InputText } from 'primevue'
+import PhoneNumberField from '@/components/account/PhoneNumberField.vue'
 
 // Step state
 const activeStep = ref(1)
+const isStep1Valid = ref(true)
 const steps = [
-  { value: 1, label: 'Thông tin người bán' },
+  { value: 1, label: 'Thông tin Shop' },
   { value: 2, label: 'Cài đặt vận chuyển' },
   { value: 3, label: 'Điều khoản sử dụng' },
   { value: 4, label: 'Hoàn tất' },
@@ -244,8 +230,7 @@ const steps = [
 
 // Step 1: Seller Information
 const sellerName = ref('')
-const sellerEmail = ref('')
-const sellerPhone = ref('')
+const sellerPhoneNumber = ref('')
 
 // Step 2: Shipping Settings
 const shippingOptions = [
