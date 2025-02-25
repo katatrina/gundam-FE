@@ -114,7 +114,6 @@ const fetchGundams = async () => {
     // Always use selectedGradeSlug for filtering
     const params = selectedGradeSlug.value ? { grade: selectedGradeSlug.value } : {}
     const response = await axios.get<Gundam[]>('/gundams', { params })
-    console.log('response', response.data);
 
     // Check if response.data.gundams exists
     if (response.data) {
