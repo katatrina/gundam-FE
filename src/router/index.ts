@@ -1,6 +1,8 @@
+import { MemberRole, SellerRole } from '@/constants/roles'
 import AccountLayout from '@/layouts/AccountLayout.vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 import MinimalLayout from '@/layouts/MinimalLayout.vue'
+import SellerLayout from '@/layouts/SellerLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import AccountAddressesView from '@/views/authenticated/AccountAddressView.vue'
 import AccountProfileView from '@/views/authenticated/AccountProfileView.vue'
@@ -90,30 +92,38 @@ const routes = [
           },
         ],
       },
-    ],
-  },
-  {
-    path: '/become-seller',
-    component: MinimalLayout,
-    children: [
       {
-        path: '',
-        name: 'become-seller',
-        component: BecomeSellerView,
-        meta: {
-          requiresAuth: true,
-          requiresMemberRole: true,
-        },
+        path: 'seller',
+        component: SellerLayout,
+        redirect: { name: 'seller-dashboard' },
+        children: [
+          {
+            path: 'dashboard',
+            name: 'seller-dashboard',
+            component: AccountProfileView,
+            meta: { requiresSellerRole: true },
+          },
+        ],
       },
     ],
   },
   {
+    path: '/become-seller',
+    name: 'become-seller',
+    component: BecomeSellerView,
+    meta: {
+      requiresAuth: true,
+      requiresMemberRole: true,
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
+    name: 'not-found',
     component: MinimalLayout,
     children: [
       {
         path: '',
-        name: 'not-found',
+        name: 'NotFound',
         component: NotFoundView,
       },
     ],
@@ -134,9 +144,12 @@ router.beforeEach((to, from, next) => {
   } else if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     // Unauthenticated user trying to access protected route
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (to.meta.requiresMemberRole && authStore.user?.role !== 'member') {
-    // Kiểm tra nếu route yêu cầu role member
-    next({ name: 'home' })
+  } else if (to.meta.requiresMemberRole && authStore.user?.role !== MemberRole) {
+    // Kiểm tra nếu route chỉ yêu cầu role member
+    next({ name: 'not-found' })
+  } else if (to.meta.requiresSellerRole && authStore.user?.role !== SellerRole) {
+    // Kiểm tra nếu route chỉ yêu cầu role seller
+    next({ name: 'not-found' })
   } else next()
 })
 

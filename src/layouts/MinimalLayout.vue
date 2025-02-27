@@ -12,8 +12,6 @@
               <img src="/web-icon.png" alt="Mecha World" class="h-10 w-10">
               <span class="ml-1 mr-4 text-xl font-medium text-emerald-500">Mecha World</span>
             </RouterLink>
-            <!-- Page Title -->
-            <span class="text-2xl">Đăng ký trở thành Người bán</span>
           </div>
 
           <!-- Flex Spacer -->
