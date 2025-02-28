@@ -17,6 +17,9 @@ import HomeView from '@/views/public/HomeView.vue'
 import NotFoundView from '@/views/public/NotFoundView.vue'
 import ProductDetailView from '@/views/public/ProductDetailView.vue'
 import ProductsListView from '@/views/public/ProductsListView.vue'
+import SellerDashboardView from '@/views/seller/SellerDashboardView.vue'
+import SellerGundamsManagementView from '@/views/seller/SellerGundamsManagementView.vue'
+import SellerSaleOrdersManagement from '@/views/seller/SellerSaleOrdersManagement.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -96,12 +99,22 @@ const routes = [
         path: 'seller',
         component: SellerLayout,
         redirect: { name: 'seller-dashboard' },
+        meta: { requiresSellerRole: true },
         children: [
           {
             path: 'dashboard',
             name: 'seller-dashboard',
-            component: AccountProfileView,
-            meta: { requiresSellerRole: true },
+            component: SellerDashboardView,
+          },
+          {
+            path: 'gundam/list',
+            name: 'seller-gundams',
+            component: SellerGundamsManagementView,
+          },
+          {
+            path: 'sale/order',
+            name: 'seller-sale-orders',
+            component: SellerSaleOrdersManagement,
           },
         ],
       },
@@ -135,7 +148,7 @@ const router = createRouter({
   routes: routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const authStore = useAuthStore()
 
   if (to.name === 'login' && authStore.isAuthenticated) {
