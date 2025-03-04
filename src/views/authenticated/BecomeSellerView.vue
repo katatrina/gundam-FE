@@ -95,42 +95,75 @@
           <!-- Step Panels -->
           <!-- Step 1: Seller Information -->
           <div v-if="activeStep === 1" class="">
-            <div class="flex flex-row mb-4 items-center">
-              <label
-                for="sellerName"
-                class="w-1/3 text-right pr-4 text-sm font-medium text-gray-700"
-                ><span class="text-red-400">*</span> Tên Shop</label
-              >
-              <InputText
-                id="sellerName"
-                type="text"
-                v-model="sellerName"
-                size="small"
-                class="w-2/5"
-              />
-            </div>
+            <form @submit.prevent="processStep1">
+              <div class="flex flex-row mb-4 items-center">
+                <label
+                  for="sellerFullName"
+                  class="w-1/3 text-right pr-4 text-sm font-medium text-gray-700"
+                  ><span class="text-red-400">*</span> Tên Shop</label
+                >
+                <InputText
+                  id="sellerFullName"
+                  type="text"
+                  v-model="sellerFullName"
+                  v-bind="sellerFullNameAttrs"
+                  size="small"
+                  class="w-2/5"
+                  :class="{ 'border-red-500': errors.fullName }"
+                  :style="errors.fullName ? { backgroundColor: '#fffafa' } : {}"
+                />
+              </div>
+              <div v-show="errors.fullName" class="flex">
+                <div class="w-36"></div>
+                <span class="text-red-500 text-sm -mt-2 mb-2 ml-16">{{ errors.fullName }}</span>
+              </div>
 
-            <div class="flex flex-row items-center gap-4 w-full text-right ml-16">
-              <PhoneNumberField
-                :current-phone-number="sellerPhoneNumber"
-                :require-marker="true"
-                :sm-medium-gray700="true"
-              />
-            </div>
+              <div class="flex flex-row mb-4 items-center">
+                <label
+                  for="sellerEmail"
+                  class="w-1/3 text-right pr-4 text-sm font-medium text-gray-700"
+                  ><span class="text-red-400">*</span> Email</label
+                >
+                <InputText
+                  id="sellerEmail"
+                  :value="sellerEmail"
+                  size="small"
+                  class="w-2/5"
+                  disabled
+                />
+              </div>
+              <div v-show="errors.email" class="flex">
+                <div class="w-36"></div>
+                <span class="text-red-500 text-sm">{{ errors.email }}</span>
+              </div>
 
-            <div class="flex justify-end mt-4">
-              <button
-                @click="goToNextStep"
-                class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                :disabled="!isStep1Valid"
-              >
-                Tiếp theo
-              </button>
-            </div>
+              <div class="flex flex-row items-center gap-4 w-full text-right ml-16">
+                <PhoneNumberField
+                  :current-phone-number="sellerPhoneNumber"
+                  :require-marker="true"
+                  :sm-medium-gray700="true"
+                  :require-mask-phone-number="false"
+                  @phone-updated="onPhoneUpdated"
+                />
+              </div>
+              <div v-show="errors.phoneNumber" class="flex">
+                <div class="w-36"></div>
+                <span class="text-red-500 text-sm ml-16 mt-1">{{ errors.phoneNumber }}</span>
+              </div>
+
+              <div class="flex justify-end mt-4">
+                <button
+                  type="submit"
+                  class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                  Tiếp theo
+                </button>
+              </div>
+            </form>
           </div>
 
           <!-- Step 2: Shipping Settings -->
-          <div v-if="activeStep === 2" class="flex flex-col gap-4">
+          <div v-else-if="activeStep === 2" class="flex flex-col gap-4">
             <div class="text-lg font-semibold mb-2">Cài đặt vận chuyển</div>
 
             <div class="field">
@@ -164,13 +197,12 @@
 
             <div class="flex justify-between mt-4">
               <button
-                @click="goToPreviousStep"
+                @click="backToStep1"
                 class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Quay lại
               </button>
               <button
-                @click="goToNextStep"
                 class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
               >
                 Tiếp theo
@@ -179,7 +211,7 @@
           </div>
 
           <!-- Step 3: Terms of Service -->
-          <div v-if="activeStep === 3" class="flex flex-col gap-4">
+          <div v-else-if="activeStep === 3" class="flex flex-col gap-4">
             <div class="text-lg font-semibold mb-2">Điều khoản sử dụng</div>
 
             <div class="border p-4 h-56 overflow-y-auto text-sm rounded bg-gray-50">
@@ -202,13 +234,11 @@
 
             <div class="flex justify-between mt-4">
               <button
-                @click="goToPreviousStep"
                 class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Quay lại
               </button>
               <button
-                @click="goToNextStep"
                 :disabled="!acceptTerms"
                 class="px-4 py-2 rounded-md transition-colors"
                 :class="
@@ -223,7 +253,7 @@
           </div>
 
           <!-- Step 4: Registration Package -->
-          <div v-if="activeStep === 4" class="flex flex-col gap-4">
+          <div v-else-if="activeStep === 4" class="flex flex-col gap-4">
             <div class="text-lg font-semibold mb-2">Đăng ký gói bán</div>
 
             <div class="space-y-4">
@@ -258,7 +288,6 @@
 
             <div class="flex justify-between mt-4">
               <button
-                @click="goToPreviousStep"
                 class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Quay lại
@@ -282,19 +311,25 @@ import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import ProgressSpinner from 'primevue/progressspinner'
 
-import AvatarDropdownMenu from '@/components/common/AvatarDropdownMenu.vue'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
-import { InputText } from 'primevue'
 import PhoneNumberField from '@/components/account/PhoneNumberField.vue'
+import AvatarDropdownMenu from '@/components/common/AvatarDropdownMenu.vue'
+import axios from '@/config/axios'
+import { useAuthStore } from '@/stores/auth'
+import type { User } from '@/types/models'
+import { storeToRefs } from 'pinia'
+import { InputText } from 'primevue'
+import { useToast } from 'primevue/usetoast'
+import { onMounted, ref, watch } from 'vue'
+import * as yup from 'yup'
+import { toTypedSchema } from '@vee-validate/yup'
+import { useForm } from 'vee-validate'
 
+const toast = useToast()
 const authStore = useAuthStore()
 const { isAuthenticated, isLoadingAuth } = storeToRefs(authStore)
 
 // Step state
 const activeStep = ref(1)
-const isStep1Valid = ref(true)
 const steps = [
   { value: 1, label: 'Thông tin Shop' },
   { value: 2, label: 'Cài đặt vận chuyển' },
@@ -303,8 +338,55 @@ const steps = [
 ]
 
 // Step 1: Seller Information
-const sellerName = ref('')
-const sellerPhoneNumber = ref('')
+const step1ValidationSchema = yup.object({
+  fullName: yup.string().required('Tên không được để trống').min(2, 'Tên phải có ít nhất 2 ký tự'),
+  email: yup.string().required('Email không được để trống').email('Email không hợp lệ'),
+  phoneNumber: yup
+    .string()
+    .required('Số điện thoại không được để trống')
+    .matches(/^(0|\+84)[0-9]{9,10}$/, 'Số điện thoại không hợp lệ'),
+})
+
+const {
+  defineField,
+  handleSubmit: handleStep1Submit,
+  errors,
+  validateField,
+} = useForm({
+  validationSchema: toTypedSchema(step1ValidationSchema),
+})
+
+const [sellerFullName, sellerFullNameAttrs] = defineField('fullName', {
+  validateOnModelUpdate: true,
+  validateOnChange: true,
+  validateOnInput: true,
+})
+
+const [sellerEmail] = defineField('email')
+
+const [sellerPhoneNumber] = defineField('phoneNumber', {
+  validateOnModelUpdate: false,
+  validateOnChange: true,
+  validateOnInput: true,
+})
+
+// Bước 1 -> Bước 2
+const processStep1 = () => {
+  // Sử dụng handleStep1Submit để validate và xử lý form
+  handleStep1Submit(async (values) => {
+    try {
+      // Cập nhật thông tin người dùng
+      await axios.put<User>(`/users/${authStore.user?.id}`, {
+        full_name: values.fullName,
+      })
+
+      // Chuyển sang bước tiếp theo khi thành công
+      activeStep.value = 2
+    } catch (error) {
+      console.error('Error updating profile:', error)
+    }
+  })()
+}
 
 // Step 2: Shipping Settings
 const shippingOptions = [
@@ -327,23 +409,90 @@ const acceptTerms = ref(false)
 // Step 4: Registration Package
 const selectedPackage = ref('basic')
 
-// Navigation methods
-const goToNextStep = () => {
-  if (activeStep.value < 4) {
-    activeStep.value++
+// Fetch shop information when component is mounted or when returning to step 1
+const fetchDataForStep1 = async () => {
+  try {
+    const response = await axios.get<User>(`/users/${authStore.user?.id}`)
+
+    if (response.data) {
+      const sellerData = response.data as User
+      sellerFullName.value = sellerData.full_name
+      sellerEmail.value = sellerData.email
+      sellerPhoneNumber.value = sellerData.phone_number ?? ''
+    }
+  } catch (error) {
+    console.error('Failed to fetch shop information:', error)
   }
 }
 
-const goToPreviousStep = () => {
-  if (activeStep.value > 1) {
-    activeStep.value--
-  }
+const onPhoneUpdated = (newPhoneNumber: string) => {
+  sellerPhoneNumber.value = newPhoneNumber
+
+  validateField('phoneNumber')
 }
+
+onMounted(() => {
+  if (activeStep.value === 1) {
+    fetchDataForStep1()
+  }
+})
+
+// Watch for step changes to call fetchShopInfo when returning to step 1
+watch(activeStep, (newStep) => {
+  if (newStep === 1) {
+    fetchDataForStep1()
+  }
+})
 
 // Registration completion
-const completeRegistration = () => {
-  // Here you would typically submit the form data
-  // For demo purposes, we'll just show an alert
-  alert('Đăng ký thành công!')
+const completeRegistration = async () => {
+  if (!isAuthenticated.value) {
+    toast.add({
+      severity: 'error',
+      summary: 'Lỗi',
+      detail: 'Bạn cần đăng nhập để hoàn tất đăng ký',
+      life: 3000,
+    })
+    return
+  }
+
+  try {
+    // Prepare data for submission
+    const sellerData = {
+      name: sellerFullName.value,
+      phoneNumber: sellerPhoneNumber.value,
+      shippingMethod: shippingMethod.value,
+      // shippingAreas: shippingAreas.value.map((area) => area.code),
+      acceptTerms: acceptTerms.value,
+      package: selectedPackage.value,
+    }
+
+    // Submit data to API
+    await axios.post('/api/seller/register', sellerData)
+
+    toast.add({
+      severity: 'success',
+      summary: 'Thành công',
+      detail: 'Đăng ký thành công!',
+      life: 3000,
+    })
+
+    // Redirect to seller dashboard or another appropriate page
+    // router.push('/seller/dashboard')
+  } catch (error) {
+    console.error('Failed to complete registration:', error)
+  }
 }
+
+const backToStep1 = () => {
+  activeStep.value = 1
+}
+
+// const backToStep2 = () => {
+//   activeStep.value = 2
+// }
+
+// const backToStep3 = () => {
+//   activeStep.value = 3
+// }
 </script>

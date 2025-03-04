@@ -11,7 +11,12 @@
     ><span v-if="props.requireMarker" class="text-red-400">*</span> Số điện thoại</label
   >
   <div v-if="currentPhoneNumber" class="flex items-center gap-2 text-sm">
-    {{ maskPhoneNumber(currentPhoneNumber) }}
+    <div v-if="props.requireMaskPhoneNumber">
+      <span class="text-gray-700 dark:text-gray-400">{{ maskPhoneNumber(currentPhoneNumber) }}</span>
+    </div>
+    <div v-else>
+      <span class="text-gray-700 dark:text-gray-400">{{ currentPhoneNumber }}</span>
+    </div>
     <button
       type="button"
       class="text-blue-600 underline"
@@ -200,8 +205,9 @@ import { nextTick, onUnmounted, ref } from 'vue'
 import * as yup from 'yup'
 
 const props = defineProps<{
-  currentPhoneNumber: string | null
+  currentPhoneNumber: string | undefined
   requireMarker?: boolean
+  requireMaskPhoneNumber?: boolean
   smMediumGray700?: boolean
 }>()
 

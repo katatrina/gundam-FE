@@ -30,7 +30,7 @@
           <!-- Phone Number with consistent height -->
           <div class="h-[44px]">
             <div class="flex items-center gap-4">
-              <PhoneField :currentPhoneNumber="phoneNumber" @phone-updated="onPhoneUpdated" />
+              <PhoneField :currentPhoneNumber="phoneNumber" @phone-updated="onPhoneUpdated" :require-mask-phone-number="true" />
             </div>
           </div>
 

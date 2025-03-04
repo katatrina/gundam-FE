@@ -19,7 +19,7 @@ import ProductDetailView from '@/views/public/ProductDetailView.vue'
 import ProductsListView from '@/views/public/ProductsListView.vue'
 import SellerDashboardView from '@/views/seller/SellerDashboardView.vue'
 import SellerGundamsManagementView from '@/views/seller/SellerGundamsManagementView.vue'
-import SellerSaleOrdersManagement from '@/views/seller/SellerSaleOrdersManagement.vue'
+import SellerSaleOrdersManagementView from '@/views/seller/SellerSaleOrdersManagementView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -114,7 +114,7 @@ const routes = [
           {
             path: 'sale/order',
             name: 'seller-sale-orders',
-            component: SellerSaleOrdersManagement,
+            component: SellerSaleOrdersManagementView,
           },
         ],
       },
