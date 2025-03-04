@@ -3,9 +3,8 @@
   <label
     class="w-32 flex-shrink-0 text-right"
     :class="{
-      'text-sm': props.smMediumGray700,
-      'text-gray-700': props.smMediumGray700,
-      'font-medium': props.smMediumGray700,
+      'text-gray-700': props.textMediumGray700,
+      'font-medium': props.textMediumGray700,
     }"
     for="phoneNumber"
     ><span v-if="props.requireMarker" class="text-red-400">*</span> Số điện thoại</label
@@ -187,10 +186,10 @@
 <script setup lang="ts">
 import axios from '@/config/axios'
 import { useAuthStore } from '@/stores/auth'
-import { formatDuration, differenceInSeconds } from 'date-fns'
-import { vi } from 'date-fns/locale'
 import { maskPhoneNumber } from '@/utils/user'
 import { toTypedSchema } from '@vee-validate/yup'
+import { differenceInSeconds, formatDuration } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import {
   Button,
   Dialog,
@@ -208,7 +207,7 @@ const props = defineProps<{
   currentPhoneNumber: string | undefined
   requireMarker?: boolean
   requireMaskPhoneNumber?: boolean
-  smMediumGray700?: boolean
+  textMediumGray700?: boolean
 }>()
 
 interface GenerateOTPResponse {

@@ -96,7 +96,7 @@
       </div>
 
       <!-- Sau div của isPrimaryAddress -->
-      <div v-if="authStore.user?.role === 'seller'" class="w-fit">
+      <div v-if="authStore.user?.role === 'seller' || forcePickupAddress === true" class="w-fit">
         <div class="flex items-center min-w-fit"
           :class="{ 'opacity-50': props.forcePickupAddress || currentAddress?.is_pickup_address, 'cursor-not-allowed': props.forcePickupAddress || currentAddress?.is_pickup_address, 'cursor-pointer': !props.forcePickupAddress && !currentAddress?.is_pickup_address }"
           v-tooltip.top="props.forcePickupAddress || currentAddress?.is_pickup_address ? {

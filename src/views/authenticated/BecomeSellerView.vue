@@ -97,9 +97,7 @@
           <div v-if="activeStep === 1" class="">
             <form @submit.prevent="processStep1">
               <div class="flex flex-row mb-4 items-center">
-                <label
-                  for="sellerFullName"
-                  class="w-1/3 text-right pr-4 text-sm font-medium text-gray-700"
+                <label for="sellerFullName" class="w-1/3 text-right pr-4 font-medium text-gray-700"
                   ><span class="text-red-400">*</span> Tên Shop</label
                 >
                 <InputText
@@ -115,13 +113,11 @@
               </div>
               <div v-show="errors.fullName" class="flex">
                 <div class="w-36"></div>
-                <span class="text-red-500 text-sm -mt-2 mb-2 ml-16">{{ errors.fullName }}</span>
+                <span class="text-red-500 -mt-2 mb-2 ml-16 text-sm">{{ errors.fullName }}</span>
               </div>
 
               <div class="flex flex-row mb-4 items-center">
-                <label
-                  for="sellerEmail"
-                  class="w-1/3 text-right pr-4 text-sm font-medium text-gray-700"
+                <label for="sellerEmail" class="w-1/3 text-right pr-4 font-medium text-gray-700"
                   ><span class="text-red-400">*</span> Email</label
                 >
                 <InputText
@@ -141,14 +137,14 @@
                 <PhoneNumberField
                   :current-phone-number="sellerPhoneNumber"
                   :require-marker="true"
-                  :sm-medium-gray700="true"
+                  :textMediumGray700="true"
                   :require-mask-phone-number="false"
                   @phone-updated="onPhoneUpdated"
                 />
               </div>
               <div v-show="errors.phoneNumber" class="flex">
                 <div class="w-36"></div>
-                <span class="text-red-500 text-sm ml-16 mt-1">{{ errors.phoneNumber }}</span>
+                <span class="text-red-500 ml-16 mt-1 text-sm">{{ errors.phoneNumber }}</span>
               </div>
 
               <div class="flex justify-end mt-4">
@@ -163,58 +159,85 @@
           </div>
 
           <!-- Step 2: Shipping Settings -->
-          <div v-else-if="activeStep === 2" class="flex flex-col gap-4">
-            <div class="text-lg font-semibold mb-2">Cài đặt vận chuyển</div>
+          <div v-else-if="activeStep === 2" class="">
+            <form>
+              <div class="flex flex-row mb-4">
+                <label
+                  for="pickupAddress"
+                  class="w-1/3 text-right pr-4 ml-14 font-medium text-gray-700"
+                  ><span class="text-red-400">*</span> Địa chỉ lấy hàng</label
+                >
 
-            <div class="field">
-              <label for="shippingMethod" class="block mb-1 text-sm">Phương thức vận chuyển</label>
-              <select
-                id="shippingMethod"
-                v-model="shippingMethod"
-                class="w-full px-3 py-2 border rounded-md"
-              >
-                <option v-for="method in shippingOptions" :key="method.code" :value="method.code">
-                  {{ method.name }}
-                </option>
-              </select>
-            </div>
+                <div class="w-2/5">
+                  <!-- Nếu có địa chỉ lấy hàng -->
+                  <div v-if="currentPickupAddress" class="">
+                    <div class="flex flex-col">
+                      <div class="flex items-center">
+                        <span class="font-medium">{{ currentPickupAddress?.full_name }}</span>
+                        <span class="mx-2">|</span>
+                        <span>{{ currentPickupAddress?.phone_number }}</span>
+                      </div>
+                      <div class="mt-1">
+                        {{ currentPickupAddress?.detail }}
+                      </div>
+                      <div class="">
+                        {{ currentPickupAddress?.ward_name }}
+                      </div>
+                      <div class="">
+                        {{ currentPickupAddress?.district_name }}
+                      </div>
+                      <div class="">
+                        {{ currentPickupAddress?.province_name }}
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <button
+                        type="button"
+                        class="text-blue-500"
+                        @click="openEditDialog(currentPickupAddress)"
+                      >
+                        Chỉnh sửa
+                      </button>
+                    </div>
+                  </div>
 
-            <div class="field">
-              <label class="block mb-1 text-sm">Khu vực giao hàng</label>
-              <div class="space-y-2">
-                <div v-for="area in areaOptions" :key="area.code" class="flex items-center">
-                  <input
-                    type="checkbox"
-                    :id="area.code"
-                    :value="area"
-                    v-model="shippingAreas"
-                    class="mr-2"
-                  />
-                  <label :for="area.code">{{ area.name }}</label>
+                  <!-- Nếu chưa có địa chỉ lấy hàng -->
+                  <div v-else>
+                    <button type="button" @click="openCreateDialog" class="text-blue-500">
+                      Thêm
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="flex justify-between mt-4">
-              <button
-                @click="backToStep1"
-                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Quay lại
-              </button>
-              <button
-                class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
-              >
-                Tiếp theo
-              </button>
-            </div>
+              <AddressDialog
+                ref="addressDialogRef"
+                :forcePrimaryAddress="false"
+                :forcePickupAddress="true"
+                @create-new-address="handleCreateNewAddress"
+                @update-address="handleUpdateAddress"
+                :mode="dialogMode"
+              />
+
+              <div class="flex justify-between mt-4">
+                <button
+                  @click="backToStep1"
+                  class="flex bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Quay lại
+                </button>
+                <Button class="flex" @click="processStep2" :disabled="!currentPickupAddress">
+                  Tiếp theo
+                </Button>
+              </div>
+            </form>
           </div>
 
           <!-- Step 3: Terms of Service -->
           <div v-else-if="activeStep === 3" class="flex flex-col gap-4">
             <div class="text-lg font-semibold mb-2">Điều khoản sử dụng</div>
 
-            <div class="border p-4 h-56 overflow-y-auto text-sm rounded bg-gray-50">
+            <div class="border p-4 h-56 overflow-y-auto rounded bg-gray-50">
               <p class="mb-2">Điều khoản và điều kiện sử dụng dịch vụ của chúng tôi:</p>
               <p class="mb-2">1. Người bán phải cung cấp thông tin chính xác về sản phẩm.</p>
               <p class="mb-2">2. Thời gian xử lý đơn hàng không quá 24 giờ kể từ khi nhận đơn.</p>
@@ -229,11 +252,12 @@
                 v-model="acceptTerms"
                 class="mr-2 accent-emerald-500"
               />
-              <label for="acceptTerms" class="text-sm">Tôi đồng ý với điều khoản sử dụng</label>
+              <label for="acceptTerms" class="">Tôi đồng ý với điều khoản sử dụng</label>
             </div>
 
             <div class="flex justify-between mt-4">
               <button
+                @click="backToStep2"
                 class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Quay lại
@@ -310,22 +334,23 @@
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import ProgressSpinner from 'primevue/progressspinner'
+import { useToast } from 'primevue/usetoast'
 
+import AddressDialog from '@/components/account/AddressDialog.vue'
 import PhoneNumberField from '@/components/account/PhoneNumberField.vue'
 import AvatarDropdownMenu from '@/components/common/AvatarDropdownMenu.vue'
 import axios from '@/config/axios'
 import { useAuthStore } from '@/stores/auth'
-import type { User } from '@/types/models'
+import type { User, UserAddress } from '@/types/models'
+import { toTypedSchema } from '@vee-validate/yup'
 import { storeToRefs } from 'pinia'
 import { InputText } from 'primevue'
-import { useToast } from 'primevue/usetoast'
+import { useForm } from 'vee-validate'
 import { onMounted, ref, watch } from 'vue'
 import * as yup from 'yup'
-import { toTypedSchema } from '@vee-validate/yup'
-import { useForm } from 'vee-validate'
 
-const toast = useToast()
 const authStore = useAuthStore()
+const toast = useToast()
 const { isAuthenticated, isLoadingAuth } = storeToRefs(authStore)
 
 // Step state
@@ -389,19 +414,66 @@ const processStep1 = () => {
 }
 
 // Step 2: Shipping Settings
-const shippingOptions = [
-  { name: 'Giao hàng tiêu chuẩn', code: 'standard' },
-  { name: 'Giao hàng nhanh', code: 'express' },
-  { name: 'Giao hàng hỏa tốc', code: 'sameday' },
-]
-const shippingMethod = ref(null)
+const currentPickupAddress = ref<UserAddress>()
+const addressDialogRef = ref()
+const dialogMode = ref<'create' | 'update'>('create')
 
-const areaOptions = [
-  { name: 'Miền Bắc', code: 'north' },
-  { name: 'Miền Trung', code: 'central' },
-  { name: 'Miền Nam', code: 'south' },
-]
-const shippingAreas = ref([])
+// Hàm fetch địa chỉ lấy hàng
+const fetchPickupAddress = async () => {
+  try {
+    const response = await axios.get<UserAddress>(`/users/${authStore.user?.id}/addresses/pickup`)
+
+    if (response.data) {
+      currentPickupAddress.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch pickup address:', error)
+  }
+}
+
+const handleCreateNewAddress = async (data: UserAddress) => {
+  try {
+    const response = await axios.post<UserAddress>(`/users/${authStore.user?.id}/addresses`, data)
+    currentPickupAddress.value = response.data
+    addressDialogRef?.value.closeDialog()
+    toast.add({ severity: 'success', summary: 'Đã thêm địa chỉ mới', group: 'tc', life: 3000 })
+  } catch (err: any) {
+    console.log('Error creating address', err)
+  }
+}
+
+const handleUpdateAddress = async (address: UserAddress) => {
+  try {
+    const response = await axios.put<UserAddress>(
+      `/users/${authStore.user?.id}/addresses/${address.id}`,
+      address,
+    )
+    currentPickupAddress.value = response.data
+    addressDialogRef?.value.closeDialog()
+    toast.add({ severity: 'success', summary: 'Đã cập nhật địa chỉ', group: 'tc', life: 3000 })
+  } catch (err: any) {
+    console.log('Error updating address', err)
+  }
+}
+
+const openCreateDialog = () => {
+  dialogMode.value = 'create'
+  addressDialogRef?.value.openDialog(null, 'create')
+}
+
+const openEditDialog = (address: UserAddress) => {
+  dialogMode.value = 'update'
+  addressDialogRef?.value.openDialog(address, 'update')
+}
+
+const processStep2 = () => {
+  if (currentPickupAddress.value) {
+    // Chuyển sang bước tiếp theo
+    activeStep.value = 3
+  } else {
+    console.error('Pickup address is required')
+  }
+}
 
 // Step 3: Terms of Service
 const acceptTerms = ref(false)
@@ -437,60 +509,27 @@ onMounted(() => {
   }
 })
 
-// Watch for step changes to call fetchShopInfo when returning to step 1
+// Watch for step changes to call appropriate fetch function based on step
 watch(activeStep, (newStep) => {
   if (newStep === 1) {
     fetchDataForStep1()
+  } else if (newStep === 2) {
+    fetchPickupAddress()
   }
 })
 
 // Registration completion
 const completeRegistration = async () => {
-  if (!isAuthenticated.value) {
-    toast.add({
-      severity: 'error',
-      summary: 'Lỗi',
-      detail: 'Bạn cần đăng nhập để hoàn tất đăng ký',
-      life: 3000,
-    })
-    return
-  }
-
-  try {
-    // Prepare data for submission
-    const sellerData = {
-      name: sellerFullName.value,
-      phoneNumber: sellerPhoneNumber.value,
-      shippingMethod: shippingMethod.value,
-      // shippingAreas: shippingAreas.value.map((area) => area.code),
-      acceptTerms: acceptTerms.value,
-      package: selectedPackage.value,
-    }
-
-    // Submit data to API
-    await axios.post('/api/seller/register', sellerData)
-
-    toast.add({
-      severity: 'success',
-      summary: 'Thành công',
-      detail: 'Đăng ký thành công!',
-      life: 3000,
-    })
-
-    // Redirect to seller dashboard or another appropriate page
-    // router.push('/seller/dashboard')
-  } catch (error) {
-    console.error('Failed to complete registration:', error)
-  }
+  console.log('Registration completed')
 }
 
 const backToStep1 = () => {
   activeStep.value = 1
 }
 
-// const backToStep2 = () => {
-//   activeStep.value = 2
-// }
+const backToStep2 = () => {
+  activeStep.value = 2
+}
 
 // const backToStep3 = () => {
 //   activeStep.value = 3
