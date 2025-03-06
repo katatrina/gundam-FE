@@ -235,9 +235,7 @@
 
           <!-- Step 3: Terms of Service -->
           <div v-else-if="activeStep === 3" class="flex flex-col gap-4">
-            <div class="text-lg font-semibold mb-2">Điều khoản sử dụng</div>
-
-            <div class="border p-4 h-56 overflow-y-auto rounded bg-gray-50">
+            <div class="border p-4 h-56 overflow-y- rounded bg-gray-50">
               <p class="mb-2">Điều khoản và điều kiện sử dụng dịch vụ của chúng tôi:</p>
               <p class="mb-2">1. Người bán phải cung cấp thông tin chính xác về sản phẩm.</p>
               <p class="mb-2">2. Thời gian xử lý đơn hàng không quá 24 giờ kể từ khi nhận đơn.</p>
@@ -245,14 +243,16 @@
               <p>4. Phí dịch vụ sẽ được tính theo từng gói đăng ký.</p>
             </div>
 
-            <div class="field-checkbox flex items-center">
+            <div class="field-checkbox flex items-center select-none">
               <input
                 type="checkbox"
                 id="acceptTerms"
                 v-model="acceptTerms"
-                class="mr-2 accent-emerald-500"
+                class="mr-2 accent-emerald-500 cursor-pointer h-4 w-4"
               />
-              <label for="acceptTerms" class="">Tôi đồng ý với điều khoản sử dụng</label>
+              <label for="acceptTerms" class="cursor-pointer"
+                >Tôi đồng ý với điều khoản sử dụng</label
+              >
             </div>
 
             <div class="flex justify-between mt-4">
@@ -263,6 +263,7 @@
                 Quay lại
               </button>
               <button
+                @click="activeStep = 4"
                 :disabled="!acceptTerms"
                 class="px-4 py-2 rounded-md transition-colors"
                 :class="
@@ -271,57 +272,80 @@
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 "
               >
-                Tiếp theo
+                Hoàn tất
               </button>
             </div>
           </div>
 
-          <!-- Step 4: Registration Package -->
-          <div v-else-if="activeStep === 4" class="flex flex-col gap-4">
-            <div class="text-lg font-semibold mb-2">Đăng ký gói bán</div>
+          <!-- Step 4: Registration Success - Simplified Layout -->
+          <div v-else-if="activeStep === 4" class="">
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+              <!-- Success message section -->
+              <div class="flex flex-col items-center justify-center text-center sm:w-1/2 p-4">
+                <div
+                  class="w-16 h-16 flex items-center justify-center rounded-full bg-emerald-100 mb-3 shadow"
+                >
+                  <i class="pi pi-check text-2xl text-emerald-600"></i>
+                </div>
 
-            <div class="space-y-4">
-              <div
-                class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                :class="{ 'border-emerald-500': selectedPackage === 'basic' }"
-                @click="selectedPackage = 'basic'"
-              >
-                <div class="text-base font-medium mb-1">Gói cơ bản</div>
-                <div class="text-xl font-bold mb-2">199.000đ/tháng</div>
-                <ul class="list-disc pl-5 text-xs space-y-1">
-                  <li>Đăng 100 sản phẩm</li>
-                  <li>Hỗ trợ cơ bản</li>
-                  <li>Thống kê đơn giản</li>
-                </ul>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Đăng ký thành công!</h2>
+                <p class="text-base text-gray-600">Bạn đã trở thành người bán trên Mecha World</p>
               </div>
 
-              <div
-                class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                :class="{ 'border-emerald-500': selectedPackage === 'premium' }"
-                @click="selectedPackage = 'premium'"
-              >
-                <div class="text-base font-medium mb-1">Gói cao cấp</div>
-                <div class="text-xl font-bold mb-2">499.000đ/tháng</div>
-                <ul class="list-disc pl-5 text-xs space-y-1">
-                  <li>Không giới hạn sản phẩm</li>
-                  <li>Hỗ trợ 24/7</li>
-                  <li>Thống kê chi tiết</li>
-                </ul>
+              <!-- Package information section -->
+              <div class="sm:w-1/2 w-full">
+                <div class="rounded-lg overflow-hidden shadow border border-gray-200">
+                  <!-- Package header -->
+                  <div class="bg-emerald-600 p-3 text-center">
+                    <h3 class="text-white font-semibold">GÓI DÙNG THỬ</h3>
+                    <span class="text-white text-sm">Miễn phí</span>
+                  </div>
+
+                  <!-- Package content -->
+                  <div class="bg-white p-4 text-gray-600">
+                    <!-- Selling limit -->
+                    <div class="flex items-center mb-3">
+                      <svg
+                        class="w-5 h-5 mr-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                        ></path>
+                      </svg>
+                      <span class=""
+                        >Số lượt bán: <span class="font-medium text-gray-800">5</span></span
+                      >
+                    </div>
+
+                    <!-- Auction limit -->
+                    <div class="flex items-center">
+                      <i class="pi pi-hammer mr-3" style="font-size: 1.25rem" />
+                      <span class=""
+                        >Số lượt mở đấu giá: <span class="text-gray-800 font-medium">1</span></span
+                      >
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="flex justify-between mt-4">
-              <button
-                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+            <!-- Start selling button -->
+            <div class="flex justify-center mt-6">
+              <RouterLink
+                to="seller/gundam/list"
+                style="padding: 12px 32px"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 rounded-md"
               >
-                Quay lại
-              </button>
-              <button
-                @click="completeRegistration"
-                class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition-colors"
-              >
-                Hoàn tất đăng ký
-              </button>
+                <span>Bắt đầu bán hàng</span>
+                <i class="pi pi-arrow-right ml-2"></i>
+              </RouterLink>
             </div>
           </div>
         </div>
@@ -331,9 +355,7 @@
 </template>
 
 <script lang="ts" setup>
-import Button from 'primevue/button'
-import Divider from 'primevue/divider'
-import ProgressSpinner from 'primevue/progressspinner'
+import { Button, Divider, ProgressSpinner } from 'primevue'
 import { useToast } from 'primevue/usetoast'
 
 import AddressDialog from '@/components/account/AddressDialog.vue'
@@ -479,7 +501,6 @@ const processStep2 = () => {
 const acceptTerms = ref(false)
 
 // Step 4: Registration Package
-const selectedPackage = ref('basic')
 
 // Fetch shop information when component is mounted or when returning to step 1
 const fetchDataForStep1 = async () => {
@@ -517,11 +538,6 @@ watch(activeStep, (newStep) => {
     fetchPickupAddress()
   }
 })
-
-// Registration completion
-const completeRegistration = async () => {
-  console.log('Registration completed')
-}
 
 const backToStep1 = () => {
   activeStep.value = 1

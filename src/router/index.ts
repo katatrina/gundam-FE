@@ -99,7 +99,6 @@ const routes = [
         path: 'seller',
         component: SellerLayout,
         redirect: { name: 'seller-dashboard' },
-        meta: { requiresSellerRole: true },
         children: [
           {
             path: 'dashboard',
@@ -110,6 +109,7 @@ const routes = [
             path: 'gundam/list',
             name: 'seller-gundams',
             component: SellerGundamsManagementView,
+            meta: { requiresSellerRole: true },
           },
           {
             path: 'sale/order',
@@ -131,12 +131,12 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    name: 'not-found',
     component: MinimalLayout,
+    redirect: { name: 'not-found' },
     children: [
       {
         path: '',
-        name: 'NotFound',
+        name: 'not-found',
         component: NotFoundView,
       },
     ],
