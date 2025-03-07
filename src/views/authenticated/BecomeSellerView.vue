@@ -262,18 +262,14 @@
               >
                 Quay lại
               </button>
-              <button
-                @click="activeStep = 4"
-                :disabled="!acceptTerms"
-                class="px-4 py-2 rounded-md transition-colors"
-                :class="
-                  acceptTerms
-                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                "
-              >
-                Hoàn tất
-              </button>
+              <Button
+                type="button"
+                @click="handleCompleteRegistration"
+                :disabled="!acceptTerms || isLoading"
+                class="px-4 py-2 rounded-md"
+                :loading="isLoading"
+                label="Hoàn tất"
+              />
             </div>
           </div>
 
@@ -357,6 +353,8 @@
 <script lang="ts" setup>
 import { Button, Divider, ProgressSpinner } from 'primevue'
 import { useToast } from 'primevue/usetoast'
+import { useCookies } from '@vueuse/integrations/useCookies'
+import { ACCESS_TOKEN_KEY } from '@/constants'
 
 import AddressDialog from '@/components/account/AddressDialog.vue'
 import PhoneNumberField from '@/components/account/PhoneNumberField.vue'
@@ -373,10 +371,12 @@ import * as yup from 'yup'
 
 const authStore = useAuthStore()
 const toast = useToast()
+const cookies = useCookies()
 const { isAuthenticated, isLoadingAuth } = storeToRefs(authStore)
 
 // Step state
 const activeStep = ref(1)
+const isLoading = ref(false)
 const steps = [
   { value: 1, label: 'Thông tin Shop' },
   { value: 2, label: 'Cài đặt vận chuyển' },
@@ -524,6 +524,29 @@ const onPhoneUpdated = (newPhoneNumber: string) => {
   validateField('phoneNumber')
 }
 
+const handleCompleteRegistration = async () => {
+  try {
+    isLoading.value = true
+    // Simulate loading using promise
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    const access_token = cookies.get(ACCESS_TOKEN_KEY)
+    const response = await axios.post<User>(`/users/become-seller`, null, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    })
+    authStore.setUser(response.data)
+
+    // Move to the last step
+    activeStep.value = 4
+  } catch (error) {
+    console.error('Error completing registration:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 onMounted(() => {
   if (activeStep.value === 1) {
     fetchDataForStep1()
@@ -546,8 +569,4 @@ const backToStep1 = () => {
 const backToStep2 = () => {
   activeStep.value = 2
 }
-
-// const backToStep3 = () => {
-//   activeStep.value = 3
-// }
 </script>

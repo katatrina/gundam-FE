@@ -104,7 +104,7 @@ const authStore = useAuthStore();
 const toast = useToast();
 
 const email = ref<string>('');
-const phoneNumber = ref<string | null>(null);
+const phoneNumber = ref<string | undefined>(undefined);
 const avatar = ref<string | null>(null);
 const isLoadingNewAvatar = ref(false);
 
@@ -221,7 +221,7 @@ onMounted(async () => {
 
     const data = response.data;
     email.value = data.email;
-    phoneNumber.value = data.phone_number;
+    phoneNumber.value = data.phone_number ?? undefined;
     avatar.value = data.avatar_url;
 
     // Set controlled values
