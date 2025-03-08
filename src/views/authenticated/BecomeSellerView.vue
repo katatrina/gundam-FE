@@ -442,14 +442,10 @@ const dialogMode = ref<'create' | 'update'>('create')
 
 // Hàm fetch địa chỉ lấy hàng
 const fetchPickupAddress = async () => {
-  try {
-    const response = await axios.get<UserAddress>(`/users/${authStore.user?.id}/addresses/pickup`)
+  const response = await axios.get<UserAddress>(`/users/${authStore.user?.id}/addresses/pickup`)
 
-    if (response.data) {
-      currentPickupAddress.value = response.data
-    }
-  } catch (error) {
-    console.error('Failed to fetch pickup address:', error)
+  if (response.data) {
+    currentPickupAddress.value = response.data
   }
 }
 
@@ -528,7 +524,7 @@ const handleCompleteRegistration = async () => {
   try {
     isLoading.value = true
     // Simulate loading using promise
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const access_token = cookies.get(ACCESS_TOKEN_KEY)
     const response = await axios.post<User>(`/users/become-seller`, null, {

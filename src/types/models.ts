@@ -61,3 +61,18 @@ export interface CartItem {
   seller_name: string
   seller_avatar_url: string
 }
+
+export interface SellerSubscriptionDetails {
+  id: number;
+  plan_id: number;
+  plan_name: string;
+  seller_id: string;
+  max_listings: number | null;
+  listings_used: number;
+  max_open_auctions: number | null;
+  open_auctions_used: number;
+  is_active: boolean;
+  is_unlimited: boolean;
+  price: number;
+  end_date: string | null;
+}

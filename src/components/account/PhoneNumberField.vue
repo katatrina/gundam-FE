@@ -332,7 +332,7 @@ const focusOTPInput = () => {
 const generateOTP = async () => {
   try {
     isLoadingOTP.value = true
-    const response = await axios.post<GenerateOTPResponse>('/otp/generate', {
+    const response = await axios.post<GenerateOTPResponse>('/otp/phone/generate', {
       phone_number: newPhoneNumber.value,
     })
     console.log(response.data)
@@ -366,7 +366,7 @@ const handleOTPSubmit = async () => {
   isVerifyingOTP.value = true
 
   try {
-    const response = await axios.post('/otp/verify', {
+    const response = await axios.post('/otp/phone/verify', {
       user_id: authStore.user?.id,
       phone_number: newPhoneNumber.value,
       otp_code: OTPValue.value,
