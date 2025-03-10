@@ -41,6 +41,7 @@ export interface Gundam {
   slug: string
   grade: string
   condition: GundamCondition
+  condition_description: string | null
   manufacturer: string
   scale: string
   description: string

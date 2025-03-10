@@ -17,7 +17,7 @@
         </section>
 
         <!-- Right Section - Main Content -->
-        <section class="flex-1 min-h-[387px] bg-white rounded-md shadow-sm p-4 mb-10">
+        <section class="flex-1 min-h-[387px] bg-white rounded-md shadow-sm px-4 mb-10">
           <RouterView />
         </section>
       </div>
