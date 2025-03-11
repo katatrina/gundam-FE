@@ -52,6 +52,13 @@ export interface Gundam {
   updated_at: string
 }
 
+export interface GundamAccessory {
+  id: number
+  gundam_id: number
+  name: string
+  quantity: number
+}
+
 export interface CartItem {
   cart_item_id: string
   gundam_id: number
@@ -64,16 +71,16 @@ export interface CartItem {
 }
 
 export interface SellerSubscriptionDetails {
-  id: number;
-  plan_id: number;
-  plan_name: string;
-  seller_id: string;
-  max_listings: number | null;
-  listings_used: number;
-  max_open_auctions: number | null;
-  open_auctions_used: number;
-  is_active: boolean;
-  is_unlimited: boolean;
-  price: number;
-  end_date: string | null;
+  id: number
+  plan_id: number
+  plan_name: string
+  seller_id: string
+  max_listings: number | null
+  listings_used: number
+  max_open_auctions: number | null
+  open_auctions_used: number
+  is_active: boolean
+  is_unlimited: boolean
+  price: number
+  end_date: string | null
 }
