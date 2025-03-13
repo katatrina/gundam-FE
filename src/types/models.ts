@@ -32,7 +32,7 @@ export interface GundamGrade {
   slug: string
 }
 
-export type GundamCondition = 'new' | 'open box' | 'second hand'
+export type GundamCondition = 'new' | 'open box' | 'used'
 
 export interface Gundam {
   id: number

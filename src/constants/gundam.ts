@@ -1,28 +1,14 @@
-import type { GundamCondition } from "@/types/models";
+const GundamConditions = [
+  { label: 'Mới', value: 'new' },
+  { label: 'Đã mở hộp', value: 'open box' },
+  { label: 'Đã sử dụng', value: 'used' },
+]
 
-export const GUNDAM_CONDITION_MAPPING = {
-  'new': {
-    label: 'Mới 100%',
-    description: [
-      'Chưa mở hộp, chưa lắp ráp',
-      'Đầy đủ các phụ kiện và decal',
-      'Tình trạng mới 100%'
-    ]
-  },
-  'open box': {
-    label: 'Gần như mới',
-    description: [
-      'Đã mở hộp nhưng chưa lắp ráp',
-      'Đầy đủ các phụ kiện và decal',
-      'Tình trạng mới 100%'
-    ]
-  },
-  'second hand': {
-    label: 'Đã qua sử dụng',
-    description: [
-      'Có dấu hiệu sử dụng như bụi bẩn hoặc trầy xước nhẹ',
-      'Một số khớp có thể bị lỏng nhưng vẫn tạo dáng được',
-      'Tình trạng còn khoảng 70-80%'
-    ]
-  },
-} as const satisfies Record<GundamCondition, { label: string; description: string[] }>;
+const GundamStatuses = [
+  { label: 'Sẵn sàng', value: 'available' },
+  { label: 'Đang bán', value: 'selling' },
+  { label: 'Đang chờ duyệt đấu giá', value: 'pending auction approval' },
+  { label: 'Đang đấu giá', value: 'auctioning' },
+]
+
+export { GundamStatuses, GundamConditions }

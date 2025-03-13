@@ -4,10 +4,10 @@
       <div class="flex items-center gap-2">
         <i class="pi pi-star-fill text-yellow-500"></i>
         <h3 class="text-primary font-bold text-lg">
-          {{ subscriptionDetails?.plan_name || 'Gói của bạn' }}
+          {{ subscriptionStore.subscriptionDetails?.plan_name || 'Gói của bạn' }}
         </h3>
         <i
-          v-if="subscriptionDetails?.is_unlimited"
+          v-if="subscriptionStore.subscriptionDetails?.is_unlimited"
           class="pi pi-infinity text-primary ml-1"
           title="Gói không giới hạn"
         ></i>
@@ -19,8 +19,8 @@
         <span>Số lượt bán còn lại:</span>
         <span class="font-semibold">
           {{
-            subscriptionDetails?.max_listings
-              ? `${calculateRemainingListings} / ${subscriptionDetails.max_listings}`
+            subscriptionStore.subscriptionDetails?.max_listings
+              ? `${calculateRemainingListings} / ${subscriptionStore.subscriptionDetails.max_listings}`
               : 'Không giới hạn'
           }}
         </span>
@@ -30,8 +30,8 @@
         <span>Số lượt đấu giá còn lại:</span>
         <span class="font-semibold">
           {{
-            subscriptionDetails?.max_open_auctions
-              ? `${calculateRemainingAuctions} / ${subscriptionDetails.max_open_auctions}`
+            subscriptionStore.subscriptionDetails?.max_open_auctions
+              ? `${calculateRemainingAuctions} / ${subscriptionStore.subscriptionDetails.max_open_auctions}`
               : 'Không giới hạn'
           }}
         </span>
@@ -47,11 +47,13 @@
       <div class="flex justify-between items-center">
         <span>Tình trạng:</span>
         <span
-          :class="subscriptionDetails?.is_active ? 'text-green-600' : 'text-red-600'"
+          :class="
+            subscriptionStore.subscriptionDetails?.is_active ? 'text-green-600' : 'text-red-600'
+          "
           class="flex items-center gap-1"
         >
           <i class="pi pi-circle-fill text-[6px]"></i>
-          {{ subscriptionDetails?.is_active ? 'Hoạt động' : 'Không hoạt động' }}
+          {{ subscriptionStore.subscriptionDetails?.is_active ? 'Hoạt động' : 'Không hoạt động' }}
         </span>
       </div>
     </div>
@@ -72,36 +74,48 @@
 import axios from '@/config/axios'
 import { useCookies } from '@vueuse/integrations/useCookies.mjs'
 import { useAuthStore } from '@/stores/auth'
-import { onMounted, ref, computed } from 'vue'
+import { useSubscriptionStore } from '@/stores/subscription'
+import { onMounted, computed } from 'vue'
 import { ACCESS_TOKEN_KEY } from '@/constants'
 import type { SellerSubscriptionDetails } from '@/types/models'
 
 const authStore = useAuthStore()
+const subscriptionStore = useSubscriptionStore()
 const cookies = useCookies()
 
-const subscriptionDetails = ref<SellerSubscriptionDetails>()
-
 const calculateRemainingListings = computed(() => {
-  if (!subscriptionDetails.value || subscriptionDetails.value.max_listings === null)
+  if (
+    !subscriptionStore.subscriptionDetails ||
+    subscriptionStore.subscriptionDetails.max_listings === null
+  )
     return 'Không giới hạn'
-  return subscriptionDetails.value.max_listings - subscriptionDetails.value.listings_used
+  return (
+    subscriptionStore.subscriptionDetails.max_listings -
+    subscriptionStore.subscriptionDetails.listings_used
+  )
 })
 
 const calculateRemainingAuctions = computed(() => {
-  if (!subscriptionDetails.value || subscriptionDetails.value.max_open_auctions === null)
+  if (
+    !subscriptionStore.subscriptionDetails ||
+    subscriptionStore.subscriptionDetails.max_open_auctions === null
+  )
     return 'Không giới hạn'
-  return subscriptionDetails.value.max_open_auctions - subscriptionDetails.value.open_auctions_used
+  return (
+    subscriptionStore.subscriptionDetails.max_open_auctions -
+    subscriptionStore.subscriptionDetails.open_auctions_used
+  )
 })
 
 const formatEndDate = computed(() => {
-  if (!subscriptionDetails.value?.end_date) return 'Không xác định'
-  return new Date(subscriptionDetails.value.end_date).toLocaleDateString('vi-VN')
+  if (!subscriptionStore.subscriptionDetails?.end_date) return 'Không xác định'
+  return new Date(subscriptionStore.subscriptionDetails.end_date).toLocaleDateString('vi-VN')
 })
 
 const isTrialPlan = computed(() => {
   return (
-    subscriptionDetails.value?.plan_name?.toLowerCase().includes('dùng thử') ||
-    subscriptionDetails.value?.plan_name?.toLowerCase().includes('trial')
+    subscriptionStore.subscriptionDetails?.plan_name?.toLowerCase().includes('dùng thử') ||
+    subscriptionStore.subscriptionDetails?.plan_name?.toLowerCase().includes('trial')
   )
 })
 
@@ -120,7 +134,7 @@ onMounted(async () => {
       },
     )
 
-    subscriptionDetails.value = response.data
+    subscriptionStore.setSubscriptionDetails(response.data)
   } catch (error: any) {
     console.error("Can't fetch subscription details", error.message)
   }
@@ -128,5 +142,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Component sẽ tự động điều chỉnh chiều cao theo nội dung */
+/* Phần style không thay đổi */
 </style>

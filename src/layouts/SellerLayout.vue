@@ -4,17 +4,14 @@
     <div class="">
       <div class="flex flex-row gap-4">
         <!-- Left Section - Navigation Sidebar -->
-        <section class="w-64 shrink-0 self-start top-6">
+        <section class="w-64 shrink-0 self-start top-6 flex flex-col gap-3">
+          <!-- Seller Subscription Plan Component (background trắng riêng) -->
           <div class="bg-white rounded-md shadow-sm p-4">
-            <!-- Seller Subscription Plan Component -->
-            <div class="mb-4">
-              <SellerSubscriptionPlan />
-            </div>
+            <SellerSubscriptionPlan />
+          </div>
 
-            <!-- Divider (tùy chọn) -->
-            <div class="border-t border-gray-200 my-4"></div>
-
-            <!-- Navigation Sidebar -->
+          <!-- Navigation Sidebar (background trắng riêng) -->
+          <div class="bg-white rounded-md shadow-sm p-4">
             <SellerLeftSideBar />
           </div>
         </section>

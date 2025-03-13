@@ -40,19 +40,61 @@
       <Column header="Ảnh">
         <template #body="slotProps">
           <img
-            :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.images[0]}`"
+            :src="slotProps.data.image_urls[0] || 'https://via.placeholder.com/64'"
             :alt="slotProps.data.image"
             class="rounded"
             style="width: 64px"
           />
         </template>
       </Column>
-      <Column field="name" header="Tên" sortable style=""></Column>
+      <Column field="name" header="Tên mô hình" sortable style="">
+        <template #body="slotProps">
+          <div class="flex items -center">
+            <span class="font-medium">{{ slotProps.data.name }}</span>
+          </div>
+        </template>
+      </Column>
       <Column field="grade" header="Phân Loại" sortable style=""></Column>
-      <Column field="Scale" header="Tỉ Lệ" sortable style=""></Column>
+      <Column field="scale" header="Tỉ Lệ" sortable style=""></Column>
       <Column field="manufacturer" header="Nhà Sản Xuất" sortable style=""></Column>
-      <Column field="price" header="Giá" sortable style=""></Column>
-      <Column field="status" header="Trạng Thái" sortable style=""></Column>
+      <Column field="price" header="Giá" sortable style="">
+        <template #body="slotProps">
+          <span>{{ formatPrice(slotProps.data.price) }}</span>
+        </template>
+      </Column>
+      <Column field="status" header="Trạng Thái" sortable>
+        <template #body="slotProps">
+          <div v-if="slotProps.data.status === 'available'" class="flex flex-col gap-2">
+            <Button
+              class="w-4/5 rounded-sm"
+              size="small"
+              severity="info"
+              raised
+              @click="handleSell(slotProps.data)"
+              >Bán</Button
+            >
+            <Button
+              class="w-4/5 rounded-sm"
+              size="small"
+              severity="warn"
+              raised
+              @click="handleAuction(slotProps.data)"
+              >Đấu giá</Button
+            >
+          </div>
+          <span
+            v-else
+            :class="{
+              'text-green-500': slotProps.data.status === 'available',
+              'text-yellow-500': slotProps.data.status === 'selling',
+              'text-orange-500': slotProps.data.status === 'pending auction approval',
+              'text-blue-500': slotProps.data.status === 'ongoing auction',
+            }"
+          >
+            {{ getStatusText(slotProps.data.status) }}
+          </span>
+        </template>
+      </Column>
     </DataTable>
   </div>
   <div v-else-if="mode === 'create'">
@@ -64,27 +106,36 @@
         <span class="text-xl font-bold">THÊM MÔ HÌNH MỚI</span>
       </div>
     </div>
-    <SellerCreateGundamForm />
+    <SellerCreateGundamForm @addedSuccessfully="handleAddedSuccessfully" />
   </div>
 </template>
 
 <script setup lang="ts">
+import SellerCreateGundamForm from '@/components/seller/SellerCreateGundamForm.vue'
 import axios from '@/config/axios'
-import type { Gundam } from '@/types/models'
-import { FilterMatchMode } from '@primevue/core/api'
+import { ACCESS_TOKEN_KEY } from '@/constants'
+import { GundamStatuses } from '@/constants/gundam'
 import { useAuthStore } from '@/stores/auth'
+import { useSubscriptionStore } from '@/stores/subscription'
+import type { Gundam } from '@/types/models'
+import { formatPrice } from '@/utils/common'
+import { FilterMatchMode } from '@primevue/core/api'
 import { useCookies } from '@vueuse/integrations/useCookies.mjs'
-import { Button, IconField, InputIcon, InputText } from 'primevue'
+import { Button, IconField, InputIcon, InputText, useToast } from 'primevue'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import { onMounted, ref } from 'vue'
-import { ACCESS_TOKEN_KEY } from '@/constants'
-import SellerCreateGundamForm from '@/components/seller/SellerCreateGundamForm.vue'
 
 const loading = ref(false)
 const cookies = useCookies()
 const authStore = useAuthStore()
+const subscriptionStore = useSubscriptionStore()
+const toast = useToast()
 const mode = ref('list')
+
+const getStatusText = (value: string) => {
+  return GundamStatuses.find((status) => status.value === value)?.label
+}
 
 const gundams = ref<Gundam[]>([])
 
@@ -92,7 +143,12 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
 
-onMounted(async () => {
+function handleAddedSuccessfully() {
+  mode.value = 'list'
+  fetchGundams()
+}
+
+async function fetchGundams() {
   try {
     const response = await axios.get<Gundam[]>(`sellers/${authStore.user?.id}/gundams`, {
       headers: { Authorization: `Bearer ${cookies.get(ACCESS_TOKEN_KEY)}` },
@@ -101,6 +157,38 @@ onMounted(async () => {
   } catch (error: any) {
     console.error('Error fetching gundams', error)
   }
+}
+
+const handleSell = async (data: any) => {
+  try {
+    await axios.patch(`sellers/${authStore.user?.id}/gundams/${data.id}/sell`, null, {
+      headers: { Authorization: `Bearer ${cookies.get(ACCESS_TOKEN_KEY)}` },
+    })
+
+    subscriptionStore.increaseListingsUsed(1)
+
+    toast.add({
+      severity: 'success',
+      summary: `Mô hình ${data.name} đã được đăng bán.`,
+      group: 'tc',
+      life: 3000,
+    })
+
+    fetchGundams()
+  } catch (error) {
+    console.error('Error selling gundam', error)
+  }
+}
+
+const handleAuction = (data: any) => {
+  // Logic đấu giá sản phẩm
+  console.log('Đấu giá sản phẩm', data)
+}
+
+onMounted(async () => {
+  loading.value = true
+  await fetchGundams()
+  loading.value = false
 })
 </script>
 
